@@ -31,7 +31,8 @@ def get_textbox_info(shape):
 def to_relative_info(absolute_info):
     result = dotdict({
         "type": "layout",
-        "component": []
+        "images": [],
+        "texts": []
     })
     basis =  absolute_info[0].copy()
     for info in absolute_info:
@@ -46,8 +47,11 @@ def to_relative_info(absolute_info):
 
         info.left -= basis.left
         info.top -= basis.top
-        result.component.append(info)
-
+        if info.type == "text":
+            result.texts.append(info)
+        elif info.type == "image":
+            result.images.append(info)
+    
     result.width = right - basis.left
     result.height = buttom - basis.top
     return result
