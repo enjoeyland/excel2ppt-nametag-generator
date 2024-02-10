@@ -33,15 +33,23 @@ def to_relative_info(absolute_info):
         "type": "layout",
         "component": []
     })
-    basis =  absolute_info[0]
+    basis =  absolute_info[0].copy()
     for info in absolute_info:
         if info.left < basis.left and info.top < basis.top:
-            basis =  absolute_info[0]
+            basis =  info.copy()
 
+    right = basis.left + basis.width
+    buttom = basis.top + basis.height
     for info in absolute_info:
+        right = max(right, info.left + info.width)
+        buttom = max(buttom, info.top + info.height)
+
         info.left -= basis.left
         info.top -= basis.top
         result.component.append(info)
+
+    result.width = right - basis.left
+    result.height = buttom - basis.top
     return result
 
 def get_slide_info(slide):
