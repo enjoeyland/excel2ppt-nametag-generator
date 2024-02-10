@@ -61,6 +61,7 @@ class _SettableRun(text.Subshape):
     def text(self, str):
         self._r.text = text.to_unicode(str)
 
+text._Run = _SettableRun
 
 if __name__ == "__main__":
     from pptx import Presentation
@@ -71,17 +72,19 @@ if __name__ == "__main__":
     slide = prs.slides[0]
 
     text_shapes = []
-    for shape in slide.shapes:
+    for i, shape in  enumerate(slide.shapes):
         if shape.has_text_frame:
-            text_shapes.append(shape)
+            text_shapes.append(i)
     assert len(text_shapes) >= 2
-    font1 = text_shapes[0].text_frame.paragraphs[0].runs[0].font
+
+
+    font1 = slide.shapes[text_shapes[0]].text_frame.paragraphs[0].runs[0].font
     print(f"text1 size: {font1.size.pt}pt")
     
-    font2 = text_shapes[1].text_frame.paragraphs[0].runs[0].font
+    font2 = slide.shapes[text_shapes[1]].text_frame.paragraphs[0].runs[0].font
     print(f"text2 size: {font2.size.pt}pt")
-    
-    font1 = font2
+
+    slide.shapes[text_shapes[0]].text_frame.paragraphs[0].runs[0].font = font2
     print("after assign text2 to text1")
     print(f"text1 size: {font1.size.pt}pt")
    
