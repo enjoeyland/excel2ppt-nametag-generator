@@ -60,7 +60,7 @@ class NameTag:
                 p.alignment = text_form.alignment
                 r = p.add_run()
                 r.font = text_form.font
-                r.text = d[text_form.text]
+                r.text = d[text_form.text.lower()]
                 
     def save(self):
         self.prs.save(f'dist/generated-{self._filename}') 
@@ -71,7 +71,15 @@ def read_excel_data(filename):
     data = []
     for row in sheet.iter_rows(values_only=True):
         data.append(row)
-    return data[0], data[1:]
+
+    for i, row in enumerate(data):
+        data[i] = (c if c is not None else "" for c in row)
+
+    header = data[0]
+    header = [h.lower() for h in header]
+
+        
+    return header, data[1:]
 
 excel_filename = 'example/attendees_list-example.xlsx'  # 엑셀 파일명 입력
 header, nametag_data = read_excel_data(excel_filename)
@@ -84,7 +92,10 @@ except:
 else:
     for i, d in enumerate(nametag_data):
         d = list(d)
-        d[sample_num_idx] = int(d[sample_num_idx])
+        if d[sample_num_idx]:
+            d[sample_num_idx] = int(d[sample_num_idx])
+        else: 
+            d[sample_num_idx] = 0
         nametag_data[i] = tuple(d)
 
 nametag_data = tuples_to_dict_list(header, nametag_data)

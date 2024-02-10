@@ -59,7 +59,7 @@ def to_relative_info(absolute_info):
 def get_slide_info(slide):
     absolute_info = []
     for shape in slide.shapes:
-        print("shape:", shape.name, shape.shape_type)
+        # print("shape:", shape.name, shape.shape_type)
         absolute_info.append(get_image_info(shape) or get_textbox_info(shape))
     return to_relative_info(absolute_info)
 
