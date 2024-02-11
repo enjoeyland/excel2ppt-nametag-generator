@@ -33,7 +33,7 @@ pip install openpyxl python-pptx
 ## Running the Script
 
 ```bash
-python main.py
+python main.py -excel 'example/attendees_list-example.xlsx' -pptx 'example/nametag-example.pptx'
 ```
 
 ## Excel File Format

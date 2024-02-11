@@ -19,4 +19,4 @@ if __name__ == "__main__":
     if not os.path.exists('dist'):
         os.makedirs('dist')
     prs.save(f'dist/generated-{filename}') 
-    print(f"generated-{filename} is saved in dist folder")
+    print(f"Done: 'generated-{filename}' is saved in dist folder")
