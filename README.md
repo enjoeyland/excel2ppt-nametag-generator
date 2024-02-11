@@ -20,8 +20,8 @@ pip install openpyxl python-pptx
 
 ## Usage
 
-1. Prepare Excel file: Prepare an Excel file ([attendess_list.xlsx](attendess_list.xlsx), for example) containing the information to be included in the nametags. Each row should contain information for one nametag.
-2. Prepare PowerPoint sample: Prepare a sample PowerPoint file ([nametag.pptx](nametage.pptx), for example) to be used when generating the nametags. For Each sample slide put different layouts and designs for the name badges.
+1. Prepare Excel file: Prepare an Excel file ([attendess_list.xlsx](template/attendess_list.xlsx), for example) containing the information to be included in the nametags. Each row should contain information for one nametag.
+2. Prepare PowerPoint sample: Prepare a sample PowerPoint file ([nametag.pptx](template/nametage.pptx), for example) to be used when generating the nametags. For Each sample slide put different layouts and designs for the name badges.
 3. Run the script: Execute `main.py` Python script to automatically generate the nametags. You can find the generated nametag PowerPoint `dist/generated-*.pptx`.
 4. Check the result: The executed script will generate a new PowerPoint file. Open this file to review the generated nametags.
 
@@ -46,7 +46,37 @@ The Excel file containing the necessary information for the nametags should foll
 | 1          | ABC Univ  | Jane Smith    | SoonWon  |
 
 The 'Sample Num' column in the Excel file allows you to select from the provided sample templates. sample slide number is start from 0.
-For basic tamplate, [attendess_list.xlsx](attendess_list.xlsx) file.
+For basic tamplate, [attendess_list.xlsx](template/attendess_list.xlsx) file.
+
+## File Structure
+
+```
+project-root/
+│
+├── main.py
+├── example.py
+├── src/
+│   ├── analyze_slide.py
+│   ├── draw.py
+│   ├── settable_pptx.py
+│   └── utils.py
+│
+└── template/
+    ├── attendees_list.xlsx
+    └── nametag.pptx
+```
+
+### Description
+
+- `main.py`: Main script
+- `example.py`: Run example based on files in example folder
+- `src/`: Directory containing source code files
+  - `analyze_slide.py`: analyze shapes in slide. position, image, text, font etc. information are extracted
+  - `draw.py`: Draw nametag in ppt
+  - `settable_pptx.py`: make run.font settable
+- `template/`: Directory containing template files
+  - `attendees_list.xlsx`: Excel file containing the list of attendees information for nametag
+  - `nametag.pptx`: PowerPoint template for sample nametags. Custom slide layout are applied
 
 ## License
 
