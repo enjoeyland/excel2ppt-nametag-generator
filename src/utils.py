@@ -1,3 +1,7 @@
+from collections import defaultdict
+
+from openpyxl import load_workbook
+
 class dotdict(dict):
     """dot.notation access to dictionary attributes"""
     __getattr__ = dict.get
@@ -11,3 +15,46 @@ def chunk_list(l, chunk_size):
 
 def tuples_to_dict_list(header, data):
     return [dict(zip(header, d)) for d in data]
+
+
+def read_excel_data(filename):
+    workbook = load_workbook(filename, data_only=True)
+    sheet = workbook.active
+    data = []
+    for row in sheet.iter_rows(values_only=True):
+        data.append(row)
+
+    for i, row in enumerate(data):
+        data[i] = tuple(c if c is not None else "" for c in row)
+
+    header = data[0]
+    header = [h.lower() for h in header]
+        
+    return header, data[1:]
+
+def headed_data_with_sample_num(header, data):
+    try:
+        sample_num_idx = header.index("sample num")
+    except:
+        header += ("sample num",)
+        data = [d + (0,) for d in data]
+    else:
+        for i, d in enumerate(data):
+            d = list(d)
+            if d[sample_num_idx]:
+                d[sample_num_idx] = int(d[sample_num_idx])
+            else: 
+                data[i] = tuple(d)
+    data = tuples_to_dict_list(header, data)
+    return data
+
+def group_by_sample(data):
+    data_by_sample = defaultdict(list)
+    for d in data:
+        data_by_sample[d["sample num"]].append(d)
+    return data_by_sample
+
+def get_data_by_sample(filename):
+    header, data = read_excel_data(filename)
+    haeded_data = headed_data_with_sample_num(header, data)
+    return group_by_sample(haeded_data)
