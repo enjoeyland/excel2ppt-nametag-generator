@@ -6,9 +6,9 @@ from pptx.util import Cm, Pt
 from pptx.enum.text import PP_ALIGN
 from pptx.dml.color import RGBColor
 
-import settable
-from analyze_slide import get_slide_info
-from utils import chunk_list, tuples_to_dict_list
+import src.settable
+from src.analyze_slide import get_slide_info
+from src.utils import chunk_list, tuples_to_dict_list
 
 
 

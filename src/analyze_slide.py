@@ -2,7 +2,7 @@ from pptx import Presentation
 from pptx.enum.shapes import PP_PLACEHOLDER
 from pptx.enum.text import PP_ALIGN
 
-from utils import dotdict
+from src.utils import dotdict
 
 def get_image_info(shape):
     if shape.is_placeholder and  shape.placeholder_format.type == PP_PLACEHOLDER.PICTURE:
