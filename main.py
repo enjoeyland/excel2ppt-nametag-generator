@@ -2,36 +2,38 @@ from io import BytesIO
 from os import path
 from openpyxl import load_workbook
 from pptx import Presentation
-from pptx.util import Cm, Pt
-from pptx.enum.text import PP_ALIGN
-from pptx.dml.color import RGBColor
+from pptx.util import Cm
 
 import src.settable
 from src.analyze_slide import get_slide_info
 from src.utils import chunk_list, tuples_to_dict_list
 
 
-
-class NameTag:
-    def __init__(self, pptx):
+class NameTagGenerator:
+    def __init__(self, pptx, data):
         self._filename = path.basename(pptx)
-        self.prs = Presentation(pptx)
+        self._prs = Presentation(pptx)
+
         self.samples = []
-        for slide in self.prs.slides:
+        for slide in self._prs.slides:
             self.samples.append(get_slide_info(slide))
         self.sample_info = self.samples[0]
+
         self.num_col, self.num_row = self.get_max_col_row()
         self.num_per_slide = self.num_col * self.num_row
+        self.data = chunk_list(data, self.num_per_slide)
+
         self.left, self.top = self.get_start_pos()
 
+
     def get_max_col_row(self):
-        num_col = self.prs.slide_width.cm // self.sample_info.width
-        num_row = self.prs.slide_height.cm // self.sample_info.height
+        num_col = self._prs.slide_width.cm // self.sample_info.width
+        num_row = self._prs.slide_height.cm // self.sample_info.height
         return (int(num_col), int(num_row))
 
     def get_start_pos(self):
-        left = (self.prs.slide_width.cm - self.sample_info.width * self.num_col) / 2
-        top = (self.prs.slide_height.cm - self.sample_info.height * self.num_row) / 2
+        left = (self._prs.slide_width.cm - self.sample_info.width * self.num_col) / 2
+        top = (self._prs.slide_height.cm - self.sample_info.height * self.num_row) / 2
         return (left, top)
 
     def add_nametag_info(self, slide, data):
@@ -61,9 +63,16 @@ class NameTag:
                 r = p.add_run()
                 r.font = text_form.font
                 r.text = d[text_form.text.lower()]
-                
+
+    def start(self, blank_slide_layout = 0):
+        slide_layout = self._prs.slide_layouts[blank_slide_layout]
+        for info in self.data:
+            slide = self._prs.slides.add_slide(slide_layout)
+            self.add_nametag_info(slide, info)
+        return self._prs
+    
     def save(self):
-        self.prs.save(f'dist/generated-{self._filename}') 
+        self._prs.save(f'dist/generated-{self._filename}') 
 
 def read_excel_data(filename):
     workbook = load_workbook(filename, data_only=True)
@@ -77,36 +86,28 @@ def read_excel_data(filename):
 
     header = data[0]
     header = [h.lower() for h in header]
-
         
     return header, data[1:]
 
-excel_filename = 'example/attendees_list-example.xlsx'  # 엑셀 파일명 입력
-header, nametag_data = read_excel_data(excel_filename)
+if __name__ == "__main__":
+    excel_filename = 'example/attendees_list-example.xlsx'  # 엑셀 파일명 입력
+    header, nametag_data = read_excel_data(excel_filename)
 
-try:
-    sample_num_idx = header.index("sample num")
-except:
-    header += ("sample num",)
-    nametag_data = [d + (0,) for d in nametag_data]
-else:
-    for i, d in enumerate(nametag_data):
-        d = list(d)
-        if d[sample_num_idx]:
-            d[sample_num_idx] = int(d[sample_num_idx])
-        else: 
-            d[sample_num_idx] = 0
-        nametag_data[i] = tuple(d)
+    try:
+        sample_num_idx = header.index("sample num")
+    except:
+        header += ("sample num",)
+        nametag_data = [d + (0,) for d in nametag_data]
+    else:
+        for i, d in enumerate(nametag_data):
+            d = list(d)
+            if d[sample_num_idx]:
+                d[sample_num_idx] = int(d[sample_num_idx])
+            else: 
+                nametag_data[i] = tuple(d)
+    nametag_data = tuples_to_dict_list(header, nametag_data)
 
-nametag_data = tuples_to_dict_list(header, nametag_data)
-
-pptx_filename = 'example/nametag-example.pptx' 
-nametag = NameTag(pptx_filename)
-nametag_data = chunk_list(nametag_data, nametag.num_per_slide)
-
-slide_layout = nametag.prs.slide_layouts[0]
-for d in nametag_data:
-    slide = nametag.prs.slides.add_slide(slide_layout)
-    nametag.add_nametag_info(slide, d)
-
-nametag.save()
+    pptx_filename = 'example/nametag-example.pptx' 
+    generator = NameTagGenerator(pptx_filename, nametag_data)
+    generator.start()
+    generator.save()
