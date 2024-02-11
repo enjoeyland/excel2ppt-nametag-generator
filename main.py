@@ -1,16 +1,16 @@
-import os
+import os, subprocess
 
 from pptx import Presentation
 
 from src.draw import NameTagDrawer
-from src.utils import get_data_by_sample
+from src.utils import get_data_by_sample, open_file_with_default_program
 
 import argparse
 
 def get_args():
     parser = argparse.ArgumentParser(description='Create nametag pptx from excel file')
-    parser.add_argument('-excel', help='Excel file name')
-    parser.add_argument('-pptx', help='PowerPoint file name')
+    parser.add_argument('-excel', required=True, help='Excel file name')
+    parser.add_argument('-pptx', required=True, help='PowerPoint file name')
     return parser.parse_args()
 
 if __name__ == "__main__":
@@ -28,3 +28,5 @@ if __name__ == "__main__":
         os.makedirs('dist')
     prs.save(f'dist/generated-{filename}')
     print(f"Done: 'generated-{filename}' is saved in dist folder")
+    
+    open_file_with_default_program(f'dist/generated-{filename}')

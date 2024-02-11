@@ -1,3 +1,4 @@
+import subprocess
 from collections import defaultdict
 
 from openpyxl import load_workbook
@@ -58,3 +59,12 @@ def get_data_by_sample(filename):
     header, data = read_excel_data(filename)
     haeded_data = headed_data_with_sample_num(header, data)
     return group_by_sample(haeded_data)
+
+def open_file_with_default_program(filename):
+    try:
+        subprocess.Popen(['open', filename])  # macOS에서 파일 열기
+    except FileNotFoundError:
+        try:
+            subprocess.Popen(['xdg-open', filename])  # Linux에서 파일 열기
+        except FileNotFoundError:
+            subprocess.Popen(['start', filename], shell=True)  # Windows에서 파일 열기
