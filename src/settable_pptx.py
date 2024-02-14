@@ -1,10 +1,14 @@
 from pptx.text.text import _Run
+from pptx.oxml.ns import qn
+from lxml import etree
 
 def font(self, font): # monkey patch
     self.font.bold = font.bold
     self.font.italic = font.italic
     self.font.language_id = font.language_id
     self.font.name = font.name
+    ea = etree.SubElement(self.font._rPr, qn('a:ea'))
+    ea.set('typeface', self.font.name)
     self.font.size = font.size
     self.font.underline = font.underline
     if hasattr(font.color, 'rgb'):
