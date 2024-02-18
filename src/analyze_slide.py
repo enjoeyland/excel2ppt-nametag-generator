@@ -1,11 +1,11 @@
 from pptx import Presentation
-from pptx.enum.shapes import PP_PLACEHOLDER
+from pptx.enum.shapes import PP_PLACEHOLDER, MSO_SHAPE_TYPE
 from pptx.enum.text import PP_ALIGN
 
 from src.utils import dotdict
 
 def get_image_info(shape):
-    if shape.is_placeholder and  shape.placeholder_format.type == PP_PLACEHOLDER.PICTURE:
+    if shape.is_placeholder and shape.placeholder_format.type == PP_PLACEHOLDER.PICTURE or shape.shape_type == MSO_SHAPE_TYPE.PICTURE:
         return dotdict({
             "type": "image", 
             "left": shape.left.cm,
