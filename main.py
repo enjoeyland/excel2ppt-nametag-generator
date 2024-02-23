@@ -1,18 +1,24 @@
 import os
+import argparse
 
 from pptx import Presentation
 from tkinter import filedialog
 
 from src.draw import NameTagDrawer
 from src.utils import get_data_by_sample, open_file_with_default_program
+from src.gui import get_args_by_gui
 
-import argparse
 
 def get_args():
     parser = argparse.ArgumentParser(description='Create nametag pptx from excel file')
-    parser.add_argument('-excel', required=True, help='Excel file name')
-    parser.add_argument('-pptx', required=True, help='PowerPoint file name')
-    return parser.parse_args()
+    parser.add_argument('-excel', help='Excel file name')
+    parser.add_argument('-pptx', help='PowerPoint file name')
+    args = parser.parse_args()
+
+    if not args.excel or not args.pptx:
+        args = get_args_by_gui(args)
+    
+    return args
 
 if __name__ == "__main__":
     args = get_args()
