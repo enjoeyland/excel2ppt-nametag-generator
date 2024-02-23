@@ -1,6 +1,7 @@
-import os, subprocess
+import os
 
 from pptx import Presentation
+from tkinter import filedialog
 
 from src.draw import NameTagDrawer
 from src.utils import get_data_by_sample, open_file_with_default_program
@@ -23,10 +24,15 @@ if __name__ == "__main__":
     for i in data_by_sample.keys():
         NameTagDrawer(prs, i, data_by_sample[i]).draw()
     
-    filename = os.path.basename(args.pptx)
-    if not os.path.exists('dist'):
-        os.makedirs('dist')
-    prs.save(f'dist/generated-{filename}')
-    print(f"Done: 'generated-{filename}' is saved in dist folder")
-    
-    open_file_with_default_program(f'dist/generated-{filename}')
+    filename = filedialog.asksaveasfilename(
+        defaultextension=".pptx",
+        filetypes=[("PowerPoint files", "*.pptx")],
+        title="Save the file as",
+        initialfile=f"generated-{os.path.basename(args.pptx)}"
+    )
+    if filename:
+        prs.save(filename)
+        print(f"Done: '{filename}' is saved")
+        open_file_with_default_program(filename)
+    else:
+        print("Canceled by user.")

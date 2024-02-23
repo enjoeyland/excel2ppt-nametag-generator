@@ -1,4 +1,4 @@
-import subprocess
+import subprocess, os, platform
 from collections import defaultdict
 
 from openpyxl import load_workbook
@@ -61,10 +61,12 @@ def get_data_by_sample(filename):
     return group_by_sample(haeded_data)
 
 def open_file_with_default_program(filename):
-    try:
-        subprocess.Popen(['open', filename])  # macOS에서 파일 열기
-    except FileNotFoundError:
-        try:
-            subprocess.Popen(['xdg-open', filename])  # Linux에서 파일 열기
-        except FileNotFoundError:
-            subprocess.Popen(['start', filename], shell=True)  # Windows에서 파일 열기
+    if os.path.isfile(filename):
+        if platform.system() == 'Windows':
+            os.startfile(filename)
+        elif platform.system() == 'Darwin':  # macOS
+            subprocess.run(('open', filename))
+        else:  # linux variants
+            subprocess.run(('xdg-open', filename))
+    else:
+        print(f"No file found at {filename}")
