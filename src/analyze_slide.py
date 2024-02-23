@@ -5,14 +5,15 @@ from pptx.enum.text import PP_ALIGN
 from src.utils import dotdict
 
 def get_image_info(shape):
-    if shape.is_placeholder and shape.placeholder_format.type == PP_PLACEHOLDER.PICTURE or shape.shape_type == MSO_SHAPE_TYPE.PICTURE:
+    if shape.shape_type == MSO_SHAPE_TYPE.PICTURE or shape.is_placeholder and shape.placeholder_format.type == PP_PLACEHOLDER.PICTURE:
         return dotdict({
             "type": "image", 
             "left": shape.left.cm,
             "top": shape.top.cm,
             "width" : shape.width.cm,
             "height": shape.height.cm,
-            "image": shape.image
+            "image": shape.image,
+            "crop": (shape.crop_left, shape.crop_right, shape.crop_top, shape.crop_bottom)
         })
 
 def get_textbox_info(shape):

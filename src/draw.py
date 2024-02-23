@@ -55,12 +55,14 @@ class NameTagDrawer:
     def add_nametag_info(self, slide, slide_info):
         for left, top, data in slide_info:
             for image_form in self.sample.images:
-                slide.shapes.add_picture(
+                pic = slide.shapes.add_picture(
                     BytesIO(image_form.image.blob),
                     Cm(left + image_form.left),
                     Cm(top + image_form.top),
                     Cm(image_form.width),
-                    Cm(image_form.height))
+                    Cm(image_form.height)
+                )
+                pic.crop_left, pic.crop_right, pic.crop_top, pic.crop_bottom = image_form.crop
 
             for text_form in self.sample.texts:
                 p = slide.shapes.add_textbox(
