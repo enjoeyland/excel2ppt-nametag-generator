@@ -1,14 +1,46 @@
-from pptx.text.text import _Run
-from pptx.oxml.ns import qn
-from lxml import etree
 
-def font(self, font): # monkey patch
+from pptx.oxml import register_element_cls
+from pptx.oxml.text import CT_TextCharacterProperties, CT_TextFont
+from pptx.oxml.xmlchemy import ZeroOrOne
+from pptx.text.text import Font, _Run
+
+# Support for east asian font which is not implemented in python-pptx.
+ea = ZeroOrOne(
+        "a:ea",
+        successors=(
+            "a:ea",
+            "a:cs",
+            "a:sym",
+            "a:hlinkClick",
+            "a:hlinkMouseOver",
+            "a:rtl",
+            "a:extLst",
+        ),
+    )
+
+setattr(CT_TextCharacterProperties, 'ea', property(ea))
+ea.populate_class_members(CT_TextCharacterProperties, "ea")
+register_element_cls('a:ea', CT_TextFont)
+
+
+def name(self, value):
+    if value is None:
+        self._rPr._remove_latin()
+        self._rPr._remove_ea()
+    else:
+        latin = self._rPr.get_or_add_latin()
+        latin.typeface = value
+        ea = self._rPr.get_or_add_ea()
+        ea.typeface = value
+
+Font.name = Font.name.setter(name)
+
+# Add setter for font
+def font(self, font):
     self.font.bold = font.bold
     self.font.italic = font.italic
     self.font.language_id = font.language_id
     self.font.name = font.name
-    ea = etree.SubElement(self.font._rPr, qn('a:ea'))
-    ea.set('typeface', self.font.name)
     self.font.size = font.size
     self.font.underline = font.underline
     if hasattr(font.color, 'rgb'):
