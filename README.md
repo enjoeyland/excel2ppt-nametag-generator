@@ -56,8 +56,11 @@ project-root/
 ├── main.py
 ├── example.py
 ├── src/
+|   ├── gui.py
 │   ├── analyze_slide.py
 │   ├── draw.py
+|   ├── morefont_pptx.py
+|   ├── allow_eastaisa_typeface_pptx.py
 │   ├── settable_pptx.py
 │   └── utils.py
 │
@@ -73,7 +76,9 @@ project-root/
 - `src/`: Directory containing source code files
   - `analyze_slide.py`: analyze shapes in slide. position, image, text, font etc. information are extracted
   - `draw.py`: Draw nametag in ppt
-  - `settable_pptx.py`: make run.font settable
+  - `morefont_pptx.py`: Extends the `python-pptx` library to add support for user local font directories
+  - `allow_eastaisa_typeface_pptx.py`: Extends the `python-pptx` library to make run.font settable
+  - `settable_pptx.py`: Extends the `python-pptx` library to add support for East Asian fonts
 - `template/`: Directory containing template files
   - `attendees_list.xlsx`: Excel file containing the list of attendees information for nametag
   - `nametag.pptx`: PowerPoint template for sample nametags. Custom slide layout are applied
