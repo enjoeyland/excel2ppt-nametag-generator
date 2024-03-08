@@ -27,7 +27,11 @@ if __name__ == "__main__":
 
     prs = Presentation(args.pptx)
 
+    sample_num = len(prs.slides)
     for i in data_by_sample.keys():
+        if i >= sample_num:
+            print(f"Warning: No sample slide with index {i} exists. Skip drawing for sample {i}.")
+            continue
         NameTagDrawer(prs, i, data_by_sample[i]).draw()
     
     filename = filedialog.asksaveasfilename(

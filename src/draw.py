@@ -45,10 +45,7 @@ class SlidePositioner:
 
 class NameTagDrawer:
     def __init__(self, prs, sample_num, data):
-        self._prs = prs
-        if sample_num >= len(self._prs.slides):
-            raise ValueError(f"No sample slide with index {sample_num} exists")
-  
+        self._prs = prs  
         self.data = data     
         self.sample = get_slide_info(self._prs.slides[sample_num])
 
