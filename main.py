@@ -31,6 +31,7 @@ if __name__ == "__main__":
     for i in data_by_sample.keys():
         if i >= sample_num:
             print(f"Warning: No sample slide with index {i} exists. Skip drawing for sample {i}.")
+            print("Hint: value of cloumn 'Sample Num' should start from 0 and be continuous.")
             continue
         NameTagDrawer(prs, i, data_by_sample[i]).draw()
     
