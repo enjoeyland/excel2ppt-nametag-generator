@@ -35,6 +35,9 @@ def get_args_by_gui(args = Namespace(excel=None, pptx=None)):
     def on_leave(event):
         event.widget.configure(style='default.TButton')
 
+    def on_closing():
+        quit(code= 0)
+
     frame1 = tk.Frame(root)
     frame1.pack(pady=10)
     
@@ -83,9 +86,11 @@ def get_args_by_gui(args = Namespace(excel=None, pptx=None)):
           background=[('active', 'lightgray')])
     s.configure('hover.TButton', background='gray', font=('Helvetica', 10), padding=5, borderwidth=2, relief="groove")
 
+    root.protocol("WM_DELETE_WINDOW", on_closing)
+    
     root.mainloop()
 
     return args
 
 if __name__ == "__main__":
-    get_args_by_gui()
+    print(get_args_by_gui())
