@@ -11,11 +11,12 @@ This project aims to automatically generate nametags to load data from an Excel 
 - Python 3.x
 - `openpyxl` library
 - `python-pptx` library
+- `tkinterdnd2` library
 
 You can install the required libraries using the following command:
 
 ```bash
-pip install openpyxl python-pptx
+pip install openpyxl python-pptx tkinterdnd2
 ```
 
 ## Usage
