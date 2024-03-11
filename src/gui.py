@@ -1,25 +1,32 @@
+import re
 from argparse import Namespace
 import tkinter as tk
 from tkinter import filedialog
 from tkinter import ttk
-
+from tkinterdnd2 import DND_FILES, TkinterDnD
 
 def get_args_by_gui(args = Namespace(excel=None, pptx=None)):
-    root = tk.Tk()
+    root = TkinterDnD.Tk()
     root.title("Nametag Generator")
     root.geometry("600x200")  # Set initial window size
     
     def select_excel_file():
         excel_file = filedialog.askopenfilename(filetypes=[("Excel files", "*.xlsx")])
-        if excel_file:
-            args.excel = excel_file
-            excel_var.set("..." + excel_file[-30:])
+        set_excel_file(excel_file)
+
+    def set_excel_file(file_path):
+        if file_path:
+            args.excel = file_path
+            excel_var.set("..." + file_path[-30:])
     
     def select_pptx_file():
         pptx_file = filedialog.askopenfilename(filetypes=[("PowerPoint files", "*.pptx")])
-        if pptx_file:
-            args.pptx = pptx_file
-            pptx_var.set("..." + pptx_file[-30:])
+        set_pptx_file(pptx_file)
+
+    def set_pptx_file(file_path):
+        if file_path:
+            args.pptx = file_path
+            pptx_var.set("..." + file_path[-30:])
     
     def generate_nametags():
         if args.excel and args.pptx:
@@ -36,7 +43,29 @@ def get_args_by_gui(args = Namespace(excel=None, pptx=None)):
         event.widget.configure(style='default.TButton')
 
     def on_closing():
-        quit(code= 0)
+        exit(0)
+
+    def on_drop(event):
+        def to_list(data):
+            matches = re.findall(r'\{(.*?)\}', data)
+            for match in matches:
+                data = data.replace("{" + match + "}", "")
+            return list(matches) + data.split()
+
+        files = to_list(event.data)
+        for file in files:
+            if file.endswith('.xlsx'):
+                set_excel_file(file)
+            elif file.endswith('.pptx'):
+                set_pptx_file(file)
+            else:
+                print("Unsupported file format:", file)
+        
+        
+    root.protocol("WM_DELETE_WINDOW", on_closing)
+
+    root.drop_target_register(DND_FILES)
+    root.dnd_bind('<<Drop>>', on_drop)
 
     frame1 = tk.Frame(root)
     frame1.pack(pady=10)
@@ -86,8 +115,6 @@ def get_args_by_gui(args = Namespace(excel=None, pptx=None)):
           background=[('active', 'lightgray')])
     s.configure('hover.TButton', background='gray', font=('Helvetica', 10), padding=5, borderwidth=2, relief="groove")
 
-    root.protocol("WM_DELETE_WINDOW", on_closing)
-    
     root.mainloop()
 
     return args
