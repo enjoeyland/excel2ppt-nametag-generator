@@ -1,0 +1,1 @@
+pyinstaller -w -F .\main.py --additional-hooks-dir=hooks

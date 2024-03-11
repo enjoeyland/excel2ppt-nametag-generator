@@ -1,0 +1,1 @@
+hiddenimports = ["openpyxl.cell._writer"]

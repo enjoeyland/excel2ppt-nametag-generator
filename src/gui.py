@@ -43,7 +43,8 @@ def get_args_by_gui(args = Namespace(excel=None, pptx=None)):
         event.widget.configure(style='default.TButton')
 
     def on_closing():
-        exit(0)
+        import sys
+        sys.exit(0)
 
     def on_drop(event):
         def to_list(data):
