@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>File Selector</title>
+</head>
+<body>
+  <h1>파일 선택</h1>
+  <button id="select-excel">Excel 파일 선택</button>
+  <button id="select-pptx">PPTX 파일 선택</button>
+  <button id="run-python">Python 실행</button>
+  <script>
+    const { ipcRenderer } = require('electron');
+
+    let excelPath = '';
+    let pptxPath = '';
+
+    document.getElementById('select-excel').addEventListener('click', () => {
+      ipcRenderer.send('open-file-dialog-for-excel');
+    });
+
+    document.getElementById('select-pptx').addEventListener('click', () => {
+      ipcRenderer.send('open-file-dialog-for-pptx');
+    });
+
+    document.getElementById('run-python').addEventListener('click', () => {
+      if (excelPath && pptxPath) {
+        ipcRenderer.send('execute-python', excelPath, pptxPath);
+      } else {
+        console.log('파일 경로가 필요합니다.');
+      }
+    });
+
+    ipcRenderer.on('selected-excel', (event, path) => {
+      excelPath = path;
+      console.log('Excel 파일 선택됨: ' + path);
+    });
+
+    ipcRenderer.on('selected-pptx', (event, path) => {
+      pptxPath = path;
+      console.log('PPTX 파일 선택됨: ' + path);
+    });
+
+    ipcRenderer.on('python-output', (event, output) => {
+      console.log('Python 실행 결과: ' + output);
+    });
+  </script>
+</body>
+</html>

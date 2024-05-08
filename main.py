@@ -11,8 +11,8 @@ from src.gui import get_args_by_gui
 
 def get_args():
     parser = argparse.ArgumentParser(description='Create nametag pptx from excel file')
-    parser.add_argument('-excel', help='Excel file name')
-    parser.add_argument('-pptx', help='PowerPoint file name')
+    parser.add_argument('--excel', type=str, help='Excel file name')
+    parser.add_argument('--pptx', type=str, help='PowerPoint file name')
     args = parser.parse_args()
 
     if not args.excel or not args.pptx:
