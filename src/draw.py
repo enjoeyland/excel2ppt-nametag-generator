@@ -1,5 +1,8 @@
 from io import BytesIO
 
+from pptx.presentation import Presentation
+from pptx.slide import Slide
+from pptx.shapes.shapetree import SlideShapes
 from pptx.util import Cm
 
 from src.analyze_slide import get_slide_info
@@ -44,15 +47,18 @@ class SlidePositioner:
             yield *self._get_position(idx), d
 
 class NameTagDrawer:
-    def __init__(self, prs, sample_num, data):
+    def __init__(self, prs: Presentation, sample_num: int, data: list[dict[str, int|str]]):
         self._prs = prs  
-        self.data = data     
+        self.data = data
         self.sample = get_slide_info(self._prs.slides[sample_num])
 
-    def add_nametag_info(self, slide, slide_info):
+    def add_nametag_info(self, slide: Slide, slide_info: list[tuple[int, int, dict[str, int|str]]]):
+        shapes: SlideShapes  = slide.shapes
         for left, top, data in slide_info:
+            # print("left, top, data:", left, top, data)
+            # print("self.sample.images:", self.sample.images)
             for image_form in self.sample.images:
-                pic = slide.shapes.add_picture(
+                pic = shapes.add_picture(
                     BytesIO(image_form.image.blob),
                     Cm(left + image_form.left),
                     Cm(top + image_form.top),
@@ -62,7 +68,7 @@ class NameTagDrawer:
                 pic.crop_left, pic.crop_right, pic.crop_top, pic.crop_bottom = image_form.crop
 
             for text_form in self.sample.texts:
-                p = slide.shapes.add_textbox(
+                p = shapes.add_textbox(
                     Cm(left + text_form.left),
                     Cm(top + text_form.top),
                     Cm(text_form.width),
@@ -71,7 +77,28 @@ class NameTagDrawer:
                 p.alignment = text_form.alignment
                 r = p.add_run()
                 r.font = text_form.font
-                r.text = data[text_form.text.lower()]
+                if text_form.text.lower() in data:
+                    r.text = data[text_form.text.lower()]
+                else:
+                    r.text = text_form.text
+            
+            for auto_shape_form in self.sample.auto_shapes:
+                shape = shapes.add_shape(
+                    auto_shape_form.shape_type,
+                    Cm(left + auto_shape_form.left),
+                    Cm(top + auto_shape_form.top),
+                    Cm(auto_shape_form.width),
+                    Cm(auto_shape_form.height)
+                )
+                if auto_shape_form.text.lower() in data:
+                    shape.text = data[auto_shape_form.text.lower()]
+                else:
+                    shape.text = auto_shape_form.text
+                # TODO: change fill, line settable. see settable_pptx.py
+                # shape.fill.solid()
+                # print(type(auto_shape_form.fill))
+                # shape.fill.fore_color.rgb = auto_shape_form.fill.rgb
+                # shape.line.color.rgb = auto_shape_form.line.rgb
 
     def draw(self, blank_slide_layout = 0):
         self.position = SlidePositioner((self._prs.slide_width.cm, self._prs.slide_height.cm), self.sample, self.data)
