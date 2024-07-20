@@ -9,24 +9,27 @@ from src.analyze_slide import get_slide_info
 from src.utils import chunk_list
 
 class SlidePositioner:
-    def __init__(self, slide_size, sample, data):
+    def __init__(self, slide_size, sample, data, padding = (0, 0), margin = (0, 0), per_slide = None):
         self._slide_width, self._slide_height = slide_size
         self._sample = sample
 
+        self.padding = padding
+        self.margin = margin
+
         self.num_col, self.num_row = self.get_max_col_row()
-        self.num_per_slide = self.num_col * self.num_row
+        self.num_per_slide = self.num_col * self.num_row if per_slide is None else min(per_slide, self.num_col * self.num_row)
         self.left, self.top = self._get_start_pos()
         self.data_by_slide = chunk_list(data, self.num_per_slide)
 
 
     def get_max_col_row(self):
-        num_col = self._slide_width / self._sample.width
-        num_row = self._slide_height / self._sample.height
+        num_col = (self._slide_width + self.margin[0]) / (self._sample.width + self.padding[0] * 2 + self.margin[0])
+        num_row = (self._slide_height + self.margin[1]) / (self._sample.height + self.padding[1] * 2 + self.margin[1])
         return (int(num_col), int(num_row))
 
     def _get_start_pos(self):
-        left = (self._slide_width - self.num_col * self._sample.width) / 2
-        top = (self._slide_height - self.num_row * self._sample.height) / 2
+        left = (self._slide_width - self.num_col * (self._sample.width + self.padding[0] * 2 + self.margin[0]) + self.margin[0]) / 2
+        top = (self._slide_height - self.num_row * (self._sample.height + self.padding[1] * 2 + self.margin[1]) + self.margin[1]) / 2
         return (left, top)
     
     def _get_index(self, idx):
@@ -36,7 +39,10 @@ class SlidePositioner:
     
     def _get_position(self, idx):
         col_idx, row_idx = self._get_index(idx)
-        return (self.left + col_idx * self._sample.width, self.top + row_idx * self._sample.height)
+        return (
+            self.left + col_idx * (self._sample.width + self.padding[0] * 2 + self.margin[0]) + self.padding[0],
+            self.top + row_idx * (self._sample.height + self.padding[1] * 2 + self.margin[1]) + self.padding[1]
+        )
 
     def slide_info_generator(self):
         for data in self.data_by_slide:
@@ -55,8 +61,6 @@ class NameTagDrawer:
     def add_nametag_info(self, slide: Slide, slide_info: list[tuple[int, int, dict[str, int|str]]]):
         shapes: SlideShapes  = slide.shapes
         for left, top, data in slide_info:
-            # print("left, top, data:", left, top, data)
-            # print("self.sample.images:", self.sample.images)
             for image_form in self.sample.images:
                 pic = shapes.add_picture(
                     BytesIO(image_form.image.blob),
@@ -100,8 +104,8 @@ class NameTagDrawer:
                 # shape.fill.fore_color.rgb = auto_shape_form.fill.rgb
                 # shape.line.color.rgb = auto_shape_form.line.rgb
 
-    def draw(self, blank_slide_layout = 0):
-        self.position = SlidePositioner((self._prs.slide_width.cm, self._prs.slide_height.cm), self.sample, self.data)
+    def draw(self, blank_slide_layout = 0, **kwargs):
+        self.position = SlidePositioner((self._prs.slide_width.cm, self._prs.slide_height.cm), self.sample, self.data, **kwargs)
         slide_layout = self._prs.slide_layouts[blank_slide_layout]
 
         for slide_info in self.position.slide_info_generator():
