@@ -25,6 +25,8 @@ def read_excel_data(filename):
     for row in sheet.iter_rows(values_only=True):
         data.append(row)
 
+    assert len(data) > 0, "No data found in the excel file"
+    assert len(data) > 1, "Only header found in the excel file. No data found"
     for i, row in enumerate(data):
         data[i] = tuple(c if c is not None else "" for c in row)
 
