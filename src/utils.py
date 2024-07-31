@@ -17,7 +17,6 @@ def chunk_list(l, chunk_size):
 def tuples_to_dict_list(header, data):
     return [dict(zip(header, d)) for d in data]
 
-
 def read_excel_data(filename):
     workbook = load_workbook(filename, data_only=True)
     sheet = workbook.active
@@ -31,7 +30,7 @@ def read_excel_data(filename):
         data[i] = tuple(c if c is not None else "" for c in row)
 
     header = data[0]
-    header = [h.lower() for h in header]
+    header = [h.strip().lower() for h in header]
         
     return header, data[1:]
 
