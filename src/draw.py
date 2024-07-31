@@ -81,8 +81,8 @@ class NameTagDrawer:
                 p.alignment = text_form.alignment
                 r = p.add_run()
                 r.font = text_form.font
-                if text_form.text.lower() in data:
-                    r.text = data[text_form.text.lower()]
+                if text_form.text.strip().lower() in data:
+                    r.text = data[text_form.text.strip().lower()]
                 else:
                     r.text = text_form.text
             
