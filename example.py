@@ -2,7 +2,7 @@ import os
 
 from pptx import Presentation
 
-from src.draw import NameTagDrawer
+from src.draw_slide import SlideDrawer
 from src.utils import get_data_by_sample, open_file_with_default_program
 
 if __name__ == "__main__":
@@ -13,7 +13,7 @@ if __name__ == "__main__":
     prs = Presentation(pptx)
 
     for i in data_by_sample.keys():
-        NameTagDrawer(prs, i, data_by_sample[i]).draw()
+        SlideDrawer(prs, i, data_by_sample[i]).draw()
     
     filename = os.path.basename(pptx)
     if not os.path.exists('dist'):
