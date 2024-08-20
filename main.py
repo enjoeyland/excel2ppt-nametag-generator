@@ -5,7 +5,7 @@ import tkinter as tk
 from pptx import Presentation
 from tkinter import filedialog
 
-from src.draw import NameTagDrawer
+from src.draw_slide import SlideDrawer
 from src.utils import get_data_by_sample, open_file_with_default_program
 from src.gui import get_args_by_gui
 
@@ -46,7 +46,7 @@ if __name__ == "__main__":
             if args.gui:
                tk.messagebox.showwarning("Warning", f"Warning: No sample slide with index {i} exists. Skip drawing for sample {i}.\nHint: value of cloumn 'Sample Num' should start from 0 and be continuous.")
             continue
-        NameTagDrawer(prs, i, data_by_sample[i]).draw(
+        SlideDrawer(prs, i, data_by_sample[i]).draw(
             margin=(args.margin_x, args.margin_y),
             padding=(args.padding_x, args.padding_y),
             per_slide=args.per_slide
