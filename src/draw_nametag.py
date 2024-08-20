@@ -1,4 +1,5 @@
 from pptx.slide import Slide
+from pptx.shapes.shapetree import GroupShapes
 
 from src.draw_shape import ShapeDrawer, TextBoxDrawer, AutoShapeDrawer
 
@@ -15,10 +16,14 @@ class NameTagDrawer(ShapeDrawer):
         return nameTagDrawer
 
     def _create_drawers(self, slide: Slide):
-        shapes = slide.shapes
+        shapes = list(slide.shapes)
         for shape in shapes:
             print("shape:", shape.name, shape.shape_type)
-            yield ShapeDrawer.create(shape)
+            sd = ShapeDrawer.create(shape)
+            if isinstance(sd, GroupShapes):
+                shapes += list(sd)
+                continue
+            yield sd
     
     def add_drawer(self, drawer: ShapeDrawer):
         self.drawers.append(drawer)
