@@ -27,7 +27,7 @@ def read_excel_data(filename):
     assert len(data) > 0, "No data found in the excel file"
     assert len(data) > 1, "Only header found in the excel file. No data found"
     for i, row in enumerate(data):
-        data[i] = tuple(c if c is not None else "" for c in row)
+        data[i] = tuple(str(c) if c is not None else "" for c in row)
 
     header = data[0]
     header = [h.strip().lower() for h in header]
@@ -38,15 +38,20 @@ def headed_data_with_sample_num(header, data):
     try:
         sample_num_idx = header.index("sample num")
     except:
+        sample_num_idx = len(header)
         header += ("sample num",)
         data = [d + (0,) for d in data]
     else:
         for i, d in enumerate(data):
             d = list(d)
-            if d[sample_num_idx]:
-                d[sample_num_idx] = int(d[sample_num_idx])
-            else: 
-                data[i] = tuple(d)
+            if isinstance(d[sample_num_idx], str):
+                if d[sample_num_idx].strip() == "":
+                    continue
+                try:
+                    d[sample_num_idx] = int(d[sample_num_idx].strip())
+                except:
+                    raise ValueError(f"Sample number '{d[sample_num_idx]}' is not an integer in row {i+2}")
+            data[i] = tuple(d)
     data = tuples_to_dict_list(header, data)
     return data
 

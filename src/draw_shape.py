@@ -83,7 +83,7 @@ class TextBoxDrawer(ShapeDrawer):
         self.drawed_shape = p
         return p
     
-    def set_text(self, text: str): # TODO: 되는지 확인 필요
+    def set_text(self, text: str):
         if self.drawed_shape is None:
             raise ValueError("Shape is not drawn yet")
         self.drawed_shape.runs[0].text = text
