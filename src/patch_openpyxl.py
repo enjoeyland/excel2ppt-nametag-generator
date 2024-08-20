@@ -4,8 +4,8 @@ from openpyxl.worksheet._reader import WorksheetReader
 def bind_cells(self):
     for idx, row in self.parser.parse():
         for cell in row:
-            print(cell)
-            print(self.ws.parent._cell_styles)
+            # print(cell)
+            # print(self.ws.parent._cell_styles)
             try:
                 style = self.ws.parent._cell_styles[cell['style_id']]
             except IndexError:
