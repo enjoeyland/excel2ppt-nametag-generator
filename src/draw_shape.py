@@ -1,12 +1,13 @@
 from io import BytesIO
 from abc import ABC, abstractmethod
 
+from pptx.slide import Slide
 from pptx.enum.shapes import PP_PLACEHOLDER, MSO_SHAPE_TYPE
 from pptx.enum.text import PP_ALIGN
 from pptx.shapes.base import BaseShape
 from pptx.shapes.autoshape import Shape
 from pptx.shapes.picture import Picture
-from pptx.slide import Slide
+from pptx.shapes.group import GroupShape
 from pptx.shapes.shapetree import SlideShapes
 from pptx.util import Cm
 
@@ -24,9 +25,12 @@ class ShapeDrawer(ABC):
     def draw(self, slide: Slide, left: float=0, top: float=0):
         pass
     
-    @staticmethod
-    def create(shape: Picture|BaseShape):
-        if isinstance(shape, Picture):
+    @classmethod
+    def create(cls, shape: Picture|BaseShape):
+        if isinstance(shape, GroupShape):
+            if shape.shape_type == MSO_SHAPE_TYPE.GROUP:
+                return shape.shapes
+        elif isinstance(shape, Picture):
             if shape.shape_type == MSO_SHAPE_TYPE.PICTURE or shape.is_placeholder and shape.placeholder_format.type == PP_PLACEHOLDER.PICTURE:
                 return ImageDrawer(shape)
         elif isinstance(shape, Shape):
