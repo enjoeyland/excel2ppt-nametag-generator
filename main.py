@@ -37,8 +37,8 @@ if __name__ == "__main__":
 
     sample_num = len(prs.slides)
     for i in data_by_sample.keys():
-        if not i:
-            print(f"Warning: Sample slide index is not provided. Skip drawing.")
+        if isinstance(i, str):
+            print(f"Warning: Sample number '{i}' is not an integer. Skip drawing for sample '{i}'.")
             continue
         if i >= sample_num:
             print(f"Warning: No sample slide with index {i} exists. Skip drawing for sample {i}.")
