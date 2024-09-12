@@ -4,15 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Excel2PPT Nametag Generator</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="flex flex-col items-center justify-center h-screen bg-gray-100">
   <div id="drop-area" class="w-full max-w-lg h-64 border-4 border-dashed border-gray-400 rounded-lg flex flex-col items-center justify-center space-y-4 bg-white p-4">
     <button id="select-excel" class="px-4 py-2 bg-green-700 text-white rounded-lg hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-green-500">
-      Excel 파일 선택
+      <i class="fas fa-file-excel"></i> Excel 파일 선택
     </button>
     <button id="select-pptx" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500">
-      PPTX 파일 선택
+      <i class="fas fa-file-powerpoint"></i> PPTX 파일 선택
     </button>
     <p class="text-gray-600">or drop files here</p>
   </div>
@@ -58,7 +59,7 @@
 
   <!-- Generate button -->
   <button id="generate" class="mt-4 px-4 py-2 bg-purple-700 text-white rounded-lg hover:bg-purple-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
-    만들기
+    <i class="fas fa-cog"></i> 만들기
   </button>
 
   <script src="renderer.js"></script>
