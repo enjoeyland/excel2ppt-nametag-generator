@@ -1,27 +1,72 @@
 {
   "name": "excel2ppt-nametag-generator",
-  "version": "1.0.0",
+  "version": "0.2.0",
   "description": "This project aims to automatically generate nametags to load data from an Excel file and inserting it into a PowerPoint which is prinble format. It reads nametag data from a given Excel file and inserts information for each data into PowerPoint slides based on a provided sample template which designed in PowerPoint.",
   "main": "src/main.js",
-  "directories": {
-    "example": "example"
-  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "electron ."
+    "start": "electron .",
+    "build": "electron-builder",
+    "build-all": "powershell build.ps1 && electron-builder"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/enjoeyland/excel2ppt-nametag-generator.git"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "excel",
+    "powerpoint",
+    "nametag generator"
+  ],
+  "author": "Enjoeyland",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/enjoeyland/excel2ppt-nametag-generator/issues"
   },
   "homepage": "https://github.com/enjoeyland/excel2ppt-nametag-generator#readme",
-  "dependencies": {
-    "electron": "^30.0.2"
+  "devDependencies": {
+    "electron": "^30.0.2",
+    "electron-builder": "^25.0.5"
+  },
+  "build": {
+    "appId": "com.enjoeyland.excel2ppt-nametag-generator",
+    "productName": "Excel2PPT Nametag Generator",
+    "files": [
+      "src/**/*.{html,js,css}",
+      "assets/**/*",
+      "!node_modules/**/*.md",
+      "!node_modules/**/test/**",
+      "!node_modules/**/example/**",
+      "node_modules/**"
+    ],
+    "extraResources": [
+      {
+        "from": "dist/python/",
+        "to": "python-script",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": "template/",
+        "to": "template",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "win": {
+      "target": "nsis",
+      "signAndEditExecutable": true
+    },
+    "mac": {
+      "target": "dmg"
+    },
+    "linux": {
+      "target": "AppImage"
+    },
+    "asar": true,
+    "removePackageScripts": true,
+    "compression": "maximum"
   }
 }

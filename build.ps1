@@ -1,1 +1,1 @@
-pyinstaller -w -F --exclude-module numpy --additional-hooks-dir=hooks .\main.py
+pyinstaller -w -F --exclude-module numpy --additional-hooks-dir=hooks --distpath dist/python .\main.py

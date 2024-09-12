@@ -52,8 +52,27 @@ ipcMain.on('open-file-dialog-for-pptx', (event) => {
 ipcMain.on('execute-python', (event, args) => {
   const { excelPath, pptxPath, paddingX, paddingY, marginX, marginY, perSlide } = args;
 
-  // 기본 명령 생성
-  let command = `python main.py --excel "${excelPath}" --pptx "${pptxPath}" --padding_x ${paddingX} --padding_y ${paddingY} --margin_x ${marginX} --margin_y ${marginY}`;
+  // 배포 환경과 개발 환경 구분
+  let isDevelopment = process.env.NODE_ENV !== 'production'; // NODE_ENV로 구분
+
+  // 실행 파일 또는 스크립트 경로
+  let scriptPath = "";
+
+  // 운영체제에 따른 실행 파일 경로 설정
+  if (isDevelopment) {
+      // 개발 환경 (Python 스크립트 직접 실행)
+      scriptPath = `python ${path.join(__dirname, 'main.py')}`;
+  } else {
+      // 배포 환경 (운영체제에 맞는 실행 파일 경로 설정)
+      if (process.platform === "win32") {
+          scriptPath = `"${path.join(__dirname, 'python-script', 'main.exe')}"`;
+      } else if (process.platform === "darwin" || process.platform === "linux") {
+          scriptPath = `"${path.join(__dirname, 'python-script', 'main')}"`;
+      }
+  }
+
+  // 명령어 생성
+  let command = `${scriptPath} --excel "${excelPath}" --pptx "${pptxPath}" --padding_x ${paddingX} --padding_y ${paddingY} --margin_x ${marginX} --margin_y ${marginY}`;
 
   // perSlide가 'max'가 아니면 추가
   if (perSlide !== 'max') {
