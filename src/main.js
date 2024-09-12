@@ -49,12 +49,32 @@ ipcMain.on('open-file-dialog-for-pptx', (event) => {
   });
 });
 
-ipcMain.on('execute-python', (event, excelPath, pptxPath) => {
-  exec(`python main.py --excel "${excelPath}" --pptx "${pptxPath}"`, (error, stdout, stderr) => {
+ipcMain.on('execute-python', (event, args) => {
+  const { excelPath, pptxPath, paddingX, paddingY, marginX, marginY, perSlide } = args;
+
+  // 기본 명령 생성
+  let command = `python main.py --excel "${excelPath}" --pptx "${pptxPath}" --padding_x ${paddingX} --padding_y ${paddingY} --margin_x ${marginX} --margin_y ${marginY}`;
+
+  // perSlide가 'max'가 아니면 추가
+  if (perSlide !== 'max') {
+    command += ` --per_slide ${perSlide}`;
+  }
+
+  // Python 명령 실행
+  exec(command, (error, stdout, stderr) => {
     if (error) {
-      console.error(`exec error: ${error}`);
+      console.error(`exec error: ${error.message}`);
+      event.reply('python-output', `Error: ${error.message}`);
       return;
     }
+    if (stderr) {
+      console.error(`stderr: ${stderr}`);
+      event.reply('python-output', `Error: ${stderr}`);
+      return;
+    }
+
+    // 성공적인 결과 출력
+    console.log(`stdout: ${stdout}`);
     event.reply('python-output', stdout);
   });
 });

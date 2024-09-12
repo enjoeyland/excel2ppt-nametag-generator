@@ -1,48 +1,66 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>File Selector</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Excel2PPT Nametag Generator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-  <h1>파일 선택</h1>
-  <button id="select-excel">Excel 파일 선택</button>
-  <button id="select-pptx">PPTX 파일 선택</button>
-  <button id="run-python">Python 실행</button>
-  <script>
-    const { ipcRenderer } = require('electron');
+<body class="flex flex-col items-center justify-center h-screen bg-gray-100">
+  <div id="drop-area" class="w-full max-w-lg h-64 border-4 border-dashed border-gray-400 rounded-lg flex flex-col items-center justify-center space-y-4 bg-white p-4">
+    <button id="select-excel" class="px-4 py-2 bg-green-700 text-white rounded-lg hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-green-500">
+      Excel 파일 선택
+    </button>
+    <button id="select-pptx" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500">
+      PPTX 파일 선택
+    </button>
+    <p class="text-gray-600">or drop files here</p>
+  </div>
 
-    let excelPath = '';
-    let pptxPath = '';
+  <ul id="file-list" class="mt-2 space-y-2"></ul>
 
-    document.getElementById('select-excel').addEventListener('click', () => {
-      ipcRenderer.send('open-file-dialog-for-excel');
-    });
+  <!-- Form for padding, margin, and output per slide -->
+  <form id="parameter-form" class="mt-4 space-y-2 w-72 max-w-lg">
+    <!-- Padding section in one line -->
+    <div class="flex justify-between items-center">
+      <label class="">Padding</label>
+      <label class="ml-1">
+        X(cm):
+        <input type="number" id="padding_x" step="0.1" class="border rounded px-2 py-1 w-14" value="0">
+      </label>
+      <label class="ml-2">
+        Y(cm):
+        <input type="number" id="padding_y" step="0.1" class="border rounded px-2 py-1 w-14" value="0">
+      </label>
+    </div>
 
-    document.getElementById('select-pptx').addEventListener('click', () => {
-      ipcRenderer.send('open-file-dialog-for-pptx');
-    });
+    <!-- Margin section in one line -->
+    <div class="flex justify-between items-center">
+      <label class="">Margin</label>
+      <label class="ml-1">
+        X(cm):
+        <input type="number" id="margin_x" step="0.1" class="border rounded px-2 py-1 w-14" value="0">
+      </label>      
+      <label class="ml-2">
+        Y(cm):
+        <input type="number" id="margin_y" step="0.1" class="border rounded px-2 py-1 w-14" value="0">
+      </label>
+    </div>
 
-    document.getElementById('run-python').addEventListener('click', () => {
-      if (excelPath && pptxPath) {
-        ipcRenderer.send('execute-python', excelPath, pptxPath);
-      } else {
-        console.log('파일 경로가 필요합니다.');
-      }
-    });
+    <!-- Output per slide centered -->
+    <div class="flex items-center">
+      <label for="per_slide">
+        # of output per slide:
+        <input type="text" id="per_slide" class="border rounded px-2 py-1 w-24 text-center" value="max">
+      </label>
+    </div>
+  </form>
 
-    ipcRenderer.on('selected-excel', (event, path) => {
-      excelPath = path;
-      console.log('Excel 파일 선택됨: ' + path);
-    });
+  <!-- Generate button -->
+  <button id="generate" class="mt-4 px-4 py-2 bg-purple-700 text-white rounded-lg hover:bg-purple-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
+    만들기
+  </button>
 
-    ipcRenderer.on('selected-pptx', (event, path) => {
-      pptxPath = path;
-      console.log('PPTX 파일 선택됨: ' + path);
-    });
-
-    ipcRenderer.on('python-output', (event, output) => {
-      console.log('Python 실행 결과: ' + output);
-    });
-  </script>
+  <script src="renderer.js"></script>
 </body>
 </html>
