@@ -18,7 +18,8 @@ class NameTagDrawer(ShapeDrawer):
     def _create_drawers(self, slide: Slide):
         shapes = list(slide.shapes)
         for shape in shapes:
-            print("shape:", shape.name, shape.shape_type)
+            if __debug__:
+                print("(debug) shape:", shape.name, shape.shape_type)
             sd = ShapeDrawer.create(shape)
             if isinstance(sd, GroupShapes):
                 shapes += list(sd)
