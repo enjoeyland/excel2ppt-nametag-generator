@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Excel2PPT Nametag Generator</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="flex flex-col items-center justify-center h-screen bg-gray-100">
+  <div id="drop-area" class="w-full max-w-lg h-64 border-4 border-dashed border-gray-400 rounded-lg flex flex-col items-center justify-center space-y-4 bg-white p-4">
+    <button id="select-excel" class="px-4 py-2 bg-green-700 text-white rounded-lg hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-green-500">
+      <i class="fas fa-file-excel"></i> Excel 파일 선택
+    </button>
+    <button id="select-pptx" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500">
+      <i class="fas fa-file-powerpoint"></i> PPTX 파일 선택
+    </button>
+    <p class="text-gray-600">or drop files here</p>
+  </div>
+
+  <ul id="file-list" class="mt-2 space-y-2"></ul>
+
+  <!-- Form for padding, margin, and output per slide -->
+  <form id="parameter-form" class="mt-4 space-y-2 w-72 max-w-lg">
+    <!-- Padding section in one line -->
+    <div class="flex justify-between items-center">
+      <label class="">Padding</label>
+      <label class="ml-1">
+        X(cm):
+        <input type="number" id="padding_x" step="0.1" class="border rounded px-2 py-1 w-14" value="0">
+      </label>
+      <label class="ml-2">
+        Y(cm):
+        <input type="number" id="padding_y" step="0.1" class="border rounded px-2 py-1 w-14" value="0">
+      </label>
+    </div>
+
+    <!-- Margin section in one line -->
+    <div class="flex justify-between items-center">
+      <label class="">Margin</label>
+      <label class="ml-1">
+        X(cm):
+        <input type="number" id="margin_x" step="0.1" class="border rounded px-2 py-1 w-14" value="0">
+      </label>      
+      <label class="ml-2">
+        Y(cm):
+        <input type="number" id="margin_y" step="0.1" class="border rounded px-2 py-1 w-14" value="0">
+      </label>
+    </div>
+
+    <!-- Output per slide centered -->
+    <div class="flex items-center">
+      <label for="per_slide">
+        # of output per slide:
+        <input type="text" id="per_slide" class="border rounded px-2 py-1 w-24 text-center" value="max">
+      </label>
+    </div>
+  </form>
+
+  <!-- Generate button -->
+  <button id="generate" class="mt-4 px-4 py-2 bg-purple-700 text-white rounded-lg hover:bg-purple-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
+    <i class="fas fa-cog"></i> 만들기
+  </button>
+
+  <!-- Alert box -->
+  <style>
+    .alert-box {
+      position: fixed;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #ffcc00;
+      color: #000;
+      padding: 1rem 2rem;
+      border-radius: 5px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      font-size: 0.8rem;
+      z-index: 1000;
+      transition: transform 0.5s ease, opacity 0.5s ease;
+      opacity: 1;
+    }
+  
+    .fade-out {
+      transform: translateX(-50%) translateY(-100%);
+      opacity: 0;
+    }
+  </style>
+  <script src="renderer.js"></script>
+</body>
+</html>

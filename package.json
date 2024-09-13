@@ -1,0 +1,71 @@
+{
+  "name": "excel2ppt-nametag-generator",
+  "version": "0.2.0",
+  "description": "Automatically generates nametags by loading data from Excel and inserting it into PowerPoint slides using a predefined template.",
+  "main": "src/main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "electron .",
+    "build": "electron-builder",
+    "build-py": "powershell build.ps1",
+    "build-all": "npm run build-py && npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/enjoeyland/excel2ppt-nametag-generator.git"
+  },
+  "keywords": [
+    "excel",
+    "powerpoint",
+    "nametag generator"
+  ],
+  "author": "Enjoeyland",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/enjoeyland/excel2ppt-nametag-generator/issues"
+  },
+  "homepage": "https://github.com/enjoeyland/excel2ppt-nametag-generator#readme",
+  "devDependencies": {
+    "electron": "^30.0.2",
+    "electron-builder": "^25.0.5"
+  },
+  "build": {
+    "appId": "com.enjoeyland.excel2ppt-nametag-generator",
+    "productName": "Excel2PPT Nametag Generator",
+    "files": [
+      "src/**/*.{html,js,css}",
+      "!node_modules/**/*.md",
+      "!node_modules/**/test/**",
+      "!node_modules/**/example/**",
+      "node_modules/**"
+    ],
+    "extraResources": [
+      {
+        "from": "dist/python/",
+        "to": "python-script",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": "template/",
+        "to": "template",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "win": {
+      "target": "nsis"
+    },
+    "mac": {
+      "target": "dmg"
+    },
+    "linux": {
+      "target": "AppImage"
+    },
+    "asar": true,
+    "removePackageScripts": true,
+    "compression": "maximum"
+  }
+}
