@@ -1,7 +1,7 @@
 {
   "name": "excel2ppt-nametag-generator",
   "version": "0.2.0",
-  "description": "This project aims to automatically generate nametags to load data from an Excel file and inserting it into a PowerPoint which is prinble format. It reads nametag data from a given Excel file and inserts information for each data into PowerPoint slides based on a provided sample template which designed in PowerPoint.",
+  "description": "Automatically generates nametags by loading data from Excel and inserting it into PowerPoint slides using a predefined template.",
   "main": "src/main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -33,7 +33,6 @@
     "productName": "Excel2PPT Nametag Generator",
     "files": [
       "src/**/*.{html,js,css}",
-      "assets/**/*",
       "!node_modules/**/*.md",
       "!node_modules/**/test/**",
       "!node_modules/**/example/**",
@@ -56,8 +55,7 @@
       }
     ],
     "win": {
-      "target": "nsis",
-      "signAndEditExecutable": true
+      "target": "nsis"
     },
     "mac": {
       "target": "dmg"
