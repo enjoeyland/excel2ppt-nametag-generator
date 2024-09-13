@@ -107,10 +107,10 @@ function updateFileSelection(type, filePath) {
     let statusElement;
     if (type === 'excel') {
         excelPath = filePath;
-        statusElement = excelStatus;
+        statusElement = document.getElementById('select-excel').querySelector('.button-text');
     } else if (type === 'pptx') {
         pptxPath = filePath;
-        statusElement = pptxStatus;
+        statusElement = document.getElementById('select-pptx').querySelector('.button-text');
     }
 
     if (!statusElement.textContent.endsWith('O')) {
