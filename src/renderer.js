@@ -1,5 +1,5 @@
 const { ipcRenderer } = require('electron');
-const path = require('path');  // Node.js의 path 모듈 사용
+const path = require('path');
 
 let excelPath = '';
 let pptxPath = '';
@@ -9,31 +9,25 @@ const pptxStatus = document.getElementById('select-pptx');
 const fileList = document.getElementById('file-list');
 const generateButton = document.getElementById('generate');
 
-// 처음에는 만들기 버튼을 비활성화
 generateButton.disabled = true;
 generateButton.classList.add('opacity-50', 'cursor-not-allowed');
 
-// Excel 파일 선택 버튼
+// Button Click Event
 document.getElementById('select-excel').addEventListener('click', () => {
     ipcRenderer.send('open-file-dialog-for-excel');
 });
-
-// PPTX 파일 선택 버튼
 document.getElementById('select-pptx').addEventListener('click', () => {
     ipcRenderer.send('open-file-dialog-for-pptx');
 });
 
-// Python 실행 버튼 클릭 시 이벤트
 document.getElementById('generate').addEventListener('click', () => {
     if (excelPath && pptxPath) {
-        // 폼에서 입력한 값 가져오기
         const paddingX = parseFloat(document.getElementById('padding_x').value) || 0;
         const paddingY = parseFloat(document.getElementById('padding_y').value) || 0;
         const marginX = parseFloat(document.getElementById('margin_x').value) || 0;
         const marginY = parseFloat(document.getElementById('margin_y').value) || 0;
         const perSlide = document.getElementById('per_slide').value === 'max' ? 'max' : parseInt(document.getElementById('per_slide').value) || 'max';
 
-        // Python 스크립트에 인자 전달
         ipcRenderer.send('execute-python', {
             excelPath,
             pptxPath,
@@ -48,22 +42,30 @@ document.getElementById('generate').addEventListener('click', () => {
     }
 });
 
-// Excel 파일 선택
+// IPC Event
 ipcRenderer.on('selected-excel', (event, filePath) => {
     updateFileSelection('excel', filePath);
 });
-
-// PPTX 파일 선택
 ipcRenderer.on('selected-pptx', (event, filePath) => {
     updateFileSelection('pptx', filePath);
 });
+ipcRenderer.on('python-output', (event, message) => {
+    const alertBox = document.createElement('div');
+    alertBox.innerHTML = message.replace(/\n/g, '<br>');
+    alertBox.classList.add('alert-box');
+    document.body.appendChild(alertBox);
 
+    setTimeout(() => {
+        alertBox.classList.add('fade-out');
+    }, 5000);
+    setTimeout(() => {
+        document.body.removeChild(alertBox);
+    }, 7000);
+});
 
-
-// Drag and Drop 기능 추가
+// Drag and Drop Event
 const dropArea = document.getElementById('drop-area');
 
-// 기본 브라우저 동작 방지
 ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
     dropArea.addEventListener(eventName, preventDefaults, false);
 });
@@ -73,7 +75,6 @@ function preventDefaults(e) {
     e.stopPropagation();
 }
 
-// 드래그 상태에 따른 시각적 변화 추가
 ['dragenter', 'dragover'].forEach(eventName => {
     dropArea.classList.remove('border-gray-400');
     dropArea.classList.add('border-blue-500');
@@ -84,7 +85,6 @@ function preventDefaults(e) {
     dropArea.classList.add('border-gray-400');
 });
 
-// 파일 드롭 처리
 dropArea.addEventListener('drop', handleDrop, false);
 
 function handleDrop(e) {
@@ -103,7 +103,6 @@ function handleDrop(e) {
     updateFileList();
 }
 
-// 파일 선택 및 상태 업데이트 함수
 function updateFileSelection(type, filePath) {
     let statusElement;
     if (type === 'excel') {
@@ -123,7 +122,6 @@ function updateFileSelection(type, filePath) {
     console.log(`${type === 'excel' ? 'Excel' : 'PPTX'} 파일 선택됨: ${filePath}`);
 }
 
-// 파일 목록 업데이트
 function updateFileList() {
     fileList.innerHTML = '';  // 기존 목록 초기화
 
@@ -140,7 +138,6 @@ function updateFileList() {
     }
 }
 
-// 두 파일이 모두 선택되었는지 확인하여 버튼 활성화/비활성화
 function checkIfFilesSelected() {
     if (excelPath && pptxPath) {
         generateButton.disabled = false;

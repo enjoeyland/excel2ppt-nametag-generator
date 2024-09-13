@@ -64,12 +64,12 @@ ipcMain.on('execute-python', (event, args) => {
   exec(command, (error, stdout, stderr) => {
     if (error) {
       console.error(`exec error: ${error.message}`);
-      event.reply('python-output', `Error: ${error.message}`);
+      event.reply('python-output', `❗Error❗\n ${error.message}`);
       return;
     }
     if (stderr) {
       console.error(`stderr: ${stderr}`);
-      event.reply('python-output', `Error: ${stderr}`);
+      event.reply('python-output', `❗Error❗\n ${stderr}`);
       return;
     }
     console.log(`stdout: ${stdout}`);
