@@ -7,7 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "electron .",
     "build": "electron-builder",
-    "build-all": "powershell build.ps1 && electron-builder"
+    "build-py": "powershell build.ps1",
+    "build-all": "npm run build-py && npm run build"
   },
   "repository": {
     "type": "git",
