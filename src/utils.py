@@ -75,4 +75,4 @@ def open_file_with_default_program(filename):
         else:  # linux variants
             subprocess.run(('xdg-open', filename))
     else:
-        print(f"No file found at {filename}")
+        raise FileNotFoundError(f"No file found at {filename}")
