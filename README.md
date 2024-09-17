@@ -18,7 +18,9 @@ The generated PowerPoint slides are ready for printing, making the process quick
 You can install the required libraries using the following command:
 
 ```bash
+# install dependencies
 pip install openpyxl python-pptx tkinterdnd2
+npm install
 ```
 
 ## Usage
@@ -71,6 +73,11 @@ For basic tamplate, [attendess_list.xlsx](template/attendess_list.xlsx) file.
 
    ```bash
    python main.py --excel 'example/attendees_list-example.xlsx' --pptx 'example/nametag-example.pptx' --padding_x 0 --padding_y 0 --margin_x 0 --margin_y 0 --per_slide 4
+   ```
+
+### **Build**
+   ```bash
+   npm run build-all
    ```
 
 #### Argument Descriptions:
