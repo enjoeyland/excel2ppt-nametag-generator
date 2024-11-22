@@ -38,8 +38,9 @@ class ShapeDrawer(ABC):
                 return TextBoxDrawer(shape)
             elif shape.shape_type == MSO_SHAPE_TYPE.AUTO_SHAPE:
                 return AutoShapeDrawer(shape)
-        else:
-            raise ValueError(f"Unsupported shape type: {type(shape)}")
+            elif shape.shape_type == MSO_SHAPE_TYPE.PLACEHOLDER:
+                return None
+        raise ValueError(f"Unsupported shape type: {type(shape)}")
 
 class ImageDrawer(ShapeDrawer):
     def __init__(self, shape: Picture):
