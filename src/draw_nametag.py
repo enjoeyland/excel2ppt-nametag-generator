@@ -11,6 +11,8 @@ class NameTagDrawer(ShapeDrawer):
     def create_from_slide(slide: Slide):
         nameTagDrawer = NameTagDrawer()
         nameTagDrawer.drawers = list(nameTagDrawer._create_drawers(slide))
+        if len(nameTagDrawer.drawers) == 0:
+            raise ValueError("No shape found in the slide")
         nameTagDrawer.left, nameTagDrawer.top, nameTagDrawer.width, nameTagDrawer.height = nameTagDrawer.get_position()
         nameTagDrawer.to_relative_position(nameTagDrawer.left, nameTagDrawer.top)
         return nameTagDrawer
@@ -21,7 +23,9 @@ class NameTagDrawer(ShapeDrawer):
             if __debug__:
                 print("(debug) shape:", shape.name, shape.shape_type)
             sd = ShapeDrawer.create(shape)
-            if isinstance(sd, GroupShapes):
+            if sd is None:
+                continue
+            elif isinstance(sd, GroupShapes):
                 shapes += list(sd)
                 continue
             yield sd
