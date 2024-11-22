@@ -4,7 +4,7 @@
 
 This project automates the process of generating nametags by extracting data from an Excel file and inserting it into a PowerPoint template, creating a printable format. It reads information from the Excel file and applies it to PowerPoint slides, using a sample template that you design in advance. Each row in the Excel file corresponds to a nametag, and the script customizes the slides based on the template's layout and design.
 
-The generated PowerPoint slides are ready for printing, making the process quick and efficient for generating nametags in bulk. Creating professional nametags has never been easier—give it a try now!"
+The generated PowerPoint slides are ready for printing, making the process quick and efficient for generating nametags in bulk. Creating professional nametags has never been easier—give it a try now!
 
 ![Automatic Printable NameTag Generator Introduction](img/introduction.png)
 
@@ -14,6 +14,7 @@ The generated PowerPoint slides are ready for printing, making the process quick
 - `openpyxl` library
 - `python-pptx` library
 - `tkinterdnd2` library
+- npm
 
 You can install the required libraries using the following command:
 
