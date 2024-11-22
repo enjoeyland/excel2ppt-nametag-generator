@@ -2,14 +2,17 @@ from io import BytesIO
 from abc import ABC, abstractmethod
 
 from pptx.slide import Slide
-from pptx.enum.shapes import PP_PLACEHOLDER, MSO_SHAPE_TYPE
+from pptx.enum.shapes import PP_PLACEHOLDER, MSO_SHAPE_TYPE, MSO_CONNECTOR
 from pptx.enum.text import PP_ALIGN
 from pptx.shapes.base import BaseShape
 from pptx.shapes.autoshape import Shape
 from pptx.shapes.picture import Picture
+from pptx.shapes.connector import Connector
 from pptx.shapes.group import GroupShape
 from pptx.shapes.shapetree import SlideShapes
 from pptx.util import Cm
+
+from src.utils import set_color
 
 class ShapeDrawer(ABC):
     def __init__(self, shape: Picture|BaseShape):
@@ -26,13 +29,15 @@ class ShapeDrawer(ABC):
         pass
     
     @classmethod
-    def create(cls, shape: Picture|BaseShape):
+    def create(cls, shape: BaseShape):
         if isinstance(shape, GroupShape):
             if shape.shape_type == MSO_SHAPE_TYPE.GROUP:
                 return shape.shapes
         elif isinstance(shape, Picture):
             if shape.shape_type == MSO_SHAPE_TYPE.PICTURE or shape.is_placeholder and shape.placeholder_format.type == PP_PLACEHOLDER.PICTURE:
                 return ImageDrawer(shape)
+        elif isinstance(shape, Connector):
+            return ConnectorDrawer(shape)
         elif isinstance(shape, Shape):
             if shape.shape_type == MSO_SHAPE_TYPE.TEXT_BOX:
                 return TextBoxDrawer(shape)
@@ -105,15 +110,37 @@ class AutoShapeDrawer(ShapeDrawer):
             self.shape.height
         )
         shape.text = self.shape.text
-        # TODO: change fill, line settable. see settable_pptx.py
-        # shape.fill.solid()
-        # print(type(auto_shape_form.fill))
-        # shape.fill.fore_color.rgb = auto_shape_form.fill.rgb
-        # shape.line.color.rgb = auto_shape_form.line.rgb
+        set_color(self.shape, shape)
+        set_color(self.shape.line, shape.line)
+
         self.drawed_shape = shape
         return shape
-    
+
     def set_text(self, text: str):
         if self.drawed_shape is None:
             raise ValueError("Shape is not drawn yet")
         self.drawed_shape.text = text
+
+class ConnectorDrawer(ShapeDrawer):
+    def __init__(self, shape: Picture):
+        super().__init__(shape)
+
+    def to_relative_position(self, left: float, top: float):
+        self.begin_x = self.shape.begin_x.cm - left
+        self.begin_y = self.shape.begin_y.cm - top
+        self.end_x = self.shape.end_x.cm - left
+        self.end_y = self.shape.end_y.cm - top
+    
+    def draw(self, slide: Slide, left: float=0, top: float=0):
+        shapes: SlideShapes = slide.shapes
+        connector = shapes.add_connector(
+            MSO_CONNECTOR.STRAIGHT,
+            Cm(left + self.begin_x),
+            Cm(top + self.begin_y),
+            Cm(left + self.end_x),
+            Cm(top + self.end_y)
+        )
+        set_color(self.shape.line, connector.line)
+        
+        self.drawed_shape = connector
+        return connector

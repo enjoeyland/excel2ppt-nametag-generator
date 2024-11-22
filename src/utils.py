@@ -76,3 +76,19 @@ def open_file_with_default_program(filename):
             subprocess.run(('xdg-open', filename))
     else:
         raise FileNotFoundError(f"No file found at {filename}")
+    
+def set_color(from_shape, to_shape):
+    try:
+        color = from_shape.fill.fore_color.rgb
+        to_shape.fill.solid()
+        to_shape.fill.fore_color.rgb = color
+    except TypeError:
+        pass
+    except AttributeError:
+        try:
+            color = from_shape.fill.fore_color.theme_color
+            to_shape.fill.solid()
+            to_shape.fill.fore_color.theme_color = color
+            to_shape.fill.fore_color.brightness = from_shape.fill.fore_color.brightness
+        except TypeError:
+            pass
