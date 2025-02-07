@@ -161,3 +161,4 @@ cython_debug/
 img/introduction.pptx
 node_modules/
 label template/
+.vscode/

@@ -12,7 +12,7 @@ from pptx.shapes.group import GroupShape
 from pptx.shapes.shapetree import SlideShapes
 from pptx.util import Cm
 
-from src.utils import set_color
+from .utils import set_color
 
 class ShapeDrawer(ABC):
     def __init__(self, shape: Picture|BaseShape):

@@ -1,5 +1,7 @@
 from pptx.text.text import _Run
 
+from .utils import set_color
+
 # Add setter for font
 def font(self, font):
     self.font.bold = font.bold
@@ -8,8 +10,7 @@ def font(self, font):
     self.font.name = font.name
     self.font.size = font.size
     self.font.underline = font.underline
-    if hasattr(font.color, 'rgb'):
-        self.font.color.rgb = font.color.rgb
+    set_color(font, self.font)
 
 _Run.font = _Run.font.setter(font)
 

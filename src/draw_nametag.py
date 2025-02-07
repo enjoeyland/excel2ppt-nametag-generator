@@ -1,7 +1,7 @@
 from pptx.slide import Slide
 from pptx.shapes.shapetree import GroupShapes
 
-from src.draw_shape import ShapeDrawer, TextBoxDrawer, AutoShapeDrawer
+from .draw_shape import ShapeDrawer, TextBoxDrawer, AutoShapeDrawer
 
 class NameTagDrawer(ShapeDrawer):
     def __init__(self):

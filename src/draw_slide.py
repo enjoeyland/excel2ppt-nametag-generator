@@ -1,7 +1,7 @@
 from pptx.presentation import Presentation
 
-from src.draw_nametag import NameTagDrawer
-from src.utils import chunk_list
+from .draw_nametag import NameTagDrawer
+from .utils import chunk_list
 
 class SlidePositioner:
     def __init__(self, slide_size, sample, data, padding = (0, 0), margin = (0, 0), per_slide = None):

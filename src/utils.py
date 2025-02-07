@@ -1,6 +1,6 @@
 import subprocess, os, platform
-from collections import defaultdict
 
+from collections import defaultdict
 from openpyxl import load_workbook
 
 class dotdict(dict):
