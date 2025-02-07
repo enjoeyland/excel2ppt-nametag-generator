@@ -105,11 +105,11 @@ project-root/
 │   ├── main.js # Electron GUI
 │   ├── renderer.js
 │   ├── index.html
-│   │
-|   ├── morefont_pptx.py 
-|   ├── allow_eastaisa_typeface_pptx.py
-│   ├── settable_pptx.py
-│   └── patch_openpyxl.py
+│   └── patches
+|       ├── morefont_pptx.py 
+|       ├── allow_eastaisa_typeface_pptx.py
+│       ├── settable_pptx.py
+│       └── patch_openpyxl.py
 │
 └── template/
     ├── attendees_list.xlsx
