@@ -1,6 +1,6 @@
 from pptx.text.text import _Run
 
-from .utils import set_color
+from ..utils import set_color
 
 # Add setter for font
 def font(self, font):
