@@ -11,6 +11,10 @@ def font(self, font):
     self.font.size = font.size
     self.font.underline = font.underline
     set_color(font, self.font)
+    # strikethrough is not implemented in python-pptx
+    #     rPr = p._r.get_or_add_rPr()
+    #     strike_xml = '<a:strike {} val="sngStrike"/>'.format(nsdecls('a'))
+    #     rPr.append(parse_xml(strike_xml))
 
 _Run.font = _Run.font.setter(font)
 

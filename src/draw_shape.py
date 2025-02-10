@@ -12,7 +12,11 @@ from pptx.shapes.group import GroupShape
 from pptx.shapes.shapetree import SlideShapes
 from pptx.util import Cm
 
-from .utils import set_color
+from pptx.oxml import parse_xml
+from pptx.oxml.ns import nsdecls
+from pptx.oxml.ns import qn
+
+from .utils import set_color, set_line, set_base_shape
 
 class ShapeDrawer(ABC):
     def __init__(self, shape: Picture|BaseShape):
@@ -43,6 +47,8 @@ class ShapeDrawer(ABC):
                 return TextBoxDrawer(shape)
             elif shape.shape_type == MSO_SHAPE_TYPE.AUTO_SHAPE:
                 return AutoShapeDrawer(shape)
+            elif shape.shape_type == MSO_SHAPE_TYPE.FREEFORM:
+                return None
             elif shape.shape_type == MSO_SHAPE_TYPE.PLACEHOLDER:
                 return None
         raise ValueError(f"Unsupported shape type: {type(shape)}")
@@ -61,6 +67,7 @@ class ImageDrawer(ShapeDrawer):
             self.shape.width,
             self.shape.height
         )
+        set_base_shape(self.shape, pic)
         pic.crop_left = self.shape.crop_left
         pic.crop_right = self.shape.crop_right
         pic.crop_top = self.shape.crop_top
@@ -76,12 +83,16 @@ class TextBoxDrawer(ShapeDrawer):
     def draw(self, slide: Slide, left: float=0, top: float=0):
         shapes: SlideShapes = slide.shapes
 
-        p = shapes.add_textbox(
+        shape = shapes.add_textbox(
             Cm(left + self.left),
             Cm(top + self.top),
             self.shape.width,
             self.shape.height
-        ).text_frame.paragraphs[0]
+        )
+        set_base_shape(self.shape, shape)
+        set_color(self.shape, shape)
+        set_line(self.shape.line, shape.line)
+        p = shape.text_frame.paragraphs[0]
         p.alignment = self.shape.text_frame.paragraphs[0].alignment or PP_ALIGN.LEFT
         r = p.add_run()
         r.font = self.shape.text_frame.paragraphs[0].runs[0].font
@@ -103,15 +114,16 @@ class AutoShapeDrawer(ShapeDrawer):
         shapes: SlideShapes = slide.shapes
 
         shape = shapes.add_shape(
-            self.shape.shape_type,
+            self.shape.auto_shape_type,
             Cm(left + self.left),
             Cm(top + self.top),
             self.shape.width,
             self.shape.height
         )
-        shape.text = self.shape.text
+        set_base_shape(self.shape, shape)
         set_color(self.shape, shape)
-        set_color(self.shape.line, shape.line)
+        set_line(self.shape.line, shape.line)
+        shape.text = self.shape.text
 
         self.drawed_shape = shape
         return shape
@@ -140,7 +152,32 @@ class ConnectorDrawer(ShapeDrawer):
             Cm(left + self.end_x),
             Cm(top + self.end_y)
         )
-        set_color(self.shape.line, connector.line)
+        set_base_shape(self.shape, connector)
+        set_line(self.shape.line, connector.line)
+        self.set_arrow(connector.line, *self.get_arrow_type(self.shape.line))
         
         self.drawed_shape = connector
         return connector
+
+    def get_arrow_type(self, line):
+        line_elem = line._get_or_add_ln()
+
+        start_arrow_elem = line_elem.find(f".//{qn('a:tailEnd')}")
+        start_arrow = start_arrow_elem.get("type") if start_arrow_elem is not None else None
+        
+        end_arrow_elem = line_elem.find(f".//{qn('a:headEnd')}")
+        end_arrow = end_arrow_elem.get("type") if end_arrow_elem is not None else None
+        return start_arrow, end_arrow
+
+    def set_arrow(self, line, start_arrow=None, end_arrow=None):
+        line_elem = line._get_or_add_ln()
+
+        for arrow in line_elem.findall(qn("a:headEnd")):
+            line_elem.remove(arrow)
+        for arrow in line_elem.findall(qn("a:tailEnd")):
+            line_elem.remove(arrow)
+
+        if start_arrow:
+            line_elem.append(parse_xml(f'<a:tailEnd {nsdecls("a")} type="{start_arrow}"/>'))
+        if end_arrow: # TODO: 반영이 안되고 있음...
+            line_elem.append(parse_xml(f'<a:headEnd {nsdecls("a")} type="{end_arrow}"/>'))

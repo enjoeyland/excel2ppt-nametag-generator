@@ -77,18 +77,37 @@ def open_file_with_default_program(filename):
     else:
         raise FileNotFoundError(f"No file found at {filename}")
     
-def set_color(from_shape, to_shape):
+def set_color(source_shape, target_shape):
     try:
-        color = from_shape.fill.fore_color.rgb
-        to_shape.fill.solid()
-        to_shape.fill.fore_color.rgb = color
+        color = source_shape.fill.fore_color.rgb
+        target_shape.fill.solid()
+        target_shape.fill.fore_color.rgb = color
     except TypeError:
         pass
     except AttributeError:
         try:
-            color = from_shape.fill.fore_color.theme_color
-            to_shape.fill.solid()
-            to_shape.fill.fore_color.theme_color = color
-            to_shape.fill.fore_color.brightness = from_shape.fill.fore_color.brightness
+            color = source_shape.fill.fore_color.theme_color
+            target_shape.fill.solid()
+            target_shape.fill.fore_color.theme_color = color
+            target_shape.fill.fore_color.brightness = source_shape.fill.fore_color.brightness
         except TypeError:
             pass
+
+def set_line(source_line, target_line): # _BasePicture, Shape, Connector
+    target_line.dash_style = source_line.dash_style
+    target_line.width = source_line.width
+    set_color(source_line, target_line)
+
+def set_shadow(source_shadow, target_shadow): # BaseShape
+    if not source_shadow.inherit:
+        ...
+        # target_shadow.blur_radius = source_shadow.blur_radius
+        # target_shadow.distance = source_shadow.distance
+        # target_shadow.direction = source_shadow.direction
+        # target_shadow.rotation = source_shadow.rotation
+        # set_color(source_shadow.color, target_shadow.color)
+        # target_shadow.visible = source_shadow.visible
+
+def set_base_shape(source_shape, target_shape): # BaseShape
+    target_shape.rotation = source_shape.rotation
+    set_shadow(source_shape.shadow, target_shape.shadow)
