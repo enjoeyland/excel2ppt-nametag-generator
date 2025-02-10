@@ -1,0 +1,1 @@
+excludedimports = ["numpy"]
