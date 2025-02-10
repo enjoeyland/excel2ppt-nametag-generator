@@ -8,6 +8,8 @@ const excelStatus = document.getElementById('select-excel');
 const pptxStatus = document.getElementById('select-pptx');
 const fileList = document.getElementById('file-list');
 const generateButton = document.getElementById('generate');
+const generateButtonText = generateButton.querySelector(".button-text");
+const loadingSpinner = document.getElementById('loading-spinner');
 
 generateButton.disabled = true;
 generateButton.classList.add('opacity-50', 'cursor-not-allowed');
@@ -22,13 +24,19 @@ document.getElementById('select-pptx').addEventListener('click', () => {
 
 document.getElementById('generate').addEventListener('click', () => {
     if (excelPath && pptxPath) {
+        generateButtonText.textContent = "처리중...";
+        loadingSpinner.classList.remove("hidden");
+        loadingSpinner.classList.add("inline-block");  
+        generateButton.disabled = true;
+        generateButton.classList.add("opacity-50", "cursor-not-allowed");
+
         const paddingX = parseFloat(document.getElementById('padding_x').value) || 0;
         const paddingY = parseFloat(document.getElementById('padding_y').value) || 0;
         const marginX = parseFloat(document.getElementById('margin_x').value) || 0;
         const marginY = parseFloat(document.getElementById('margin_y').value) || 0;
         const perSlide = document.getElementById('per_slide').value === 'max' ? 'max' : parseInt(document.getElementById('per_slide').value) || 'max';
 
-        ipcRenderer.send('execute-python', {
+        ipcRenderer.send('generate-pptx', {
             excelPath,
             pptxPath,
             paddingX,
@@ -37,6 +45,15 @@ document.getElementById('generate').addEventListener('click', () => {
             marginY,
             perSlide
         });
+
+        ipcRenderer.once("generate-complete", () => {
+            generateButtonText.textContent = "만들기";
+            loadingSpinner.classList.add("hidden");
+            loadingSpinner.classList.remove("inline-block");
+            generateButton.disabled = false;
+            generateButton.classList.remove("opacity-50", "cursor-not-allowed");
+        });
+
     } else {
         console.log('파일 경로가 필요합니다.');
     }

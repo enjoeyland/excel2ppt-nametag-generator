@@ -50,7 +50,7 @@ ipcMain.on('open-file-dialog-for-pptx', (event) => {
   });
 });
 
-ipcMain.on('execute-python', (event, args) => {
+ipcMain.on('generate-pptx', (event, args) => {
   const { excelPath, pptxPath, paddingX, paddingY, marginX, marginY, perSlide } = args;
 
   let scriptPath = getScriptPath();
@@ -74,6 +74,7 @@ ipcMain.on('execute-python', (event, args) => {
     }
     console.log(`stdout: ${stdout}`);
     event.reply('python-output', stdout);
+    event.reply("generate-complete");
   });
 });
 
