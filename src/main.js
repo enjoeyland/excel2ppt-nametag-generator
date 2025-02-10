@@ -65,11 +65,13 @@ ipcMain.on('generate-pptx', (event, args) => {
     if (error) {
       console.error(`exec error: ${error.message}`);
       event.reply('python-output', `❗Error❗\n ${error.message}`);
+      event.reply("generate-complete");
       return;
     }
     if (stderr) {
       console.error(`stderr: ${stderr}`);
       event.reply('python-output', `❗Error❗\n ${stderr}`);
+      event.reply("generate-complete");
       return;
     }
     console.log(`stdout: ${stdout}`);
