@@ -4,6 +4,7 @@ const path = require('path');
 
 let win;
 let pythonProcess;
+let pythonReady = false;
 
 function createWindow() {
     win = new BrowserWindow({
@@ -23,12 +24,16 @@ function createWindow() {
         }
     });
 
-    startPythonIPCServer();
+    win.webContents.once('did-finish-load', () => {
+        startPythonIPCServer();
+    });
 }
 
 app.whenReady().then(createWindow);
 
 function startPythonIPCServer() {
+    console.log("🚀 Python IPC 서버 시작...");
+
     const pythonCommand = getPythonScript();
     pythonProcess = spawn(pythonCommand[0], [...pythonCommand.slice(1), "--rpc"], { stdio: ["pipe", "pipe", "pipe"] });
 
@@ -44,6 +49,10 @@ function startPythonIPCServer() {
                 console.warn("Received JSON but no 'status' field:", response);
             }
         } catch (error) {
+            if (text.includes("ready")) {
+                console.log("✅ Python 실행 완료! 이제 요청을 받을 수 있음.");
+                pythonReady = true;
+            }
             console.log(`Python: ${text}`);
         }
     });
@@ -54,11 +63,21 @@ function startPythonIPCServer() {
 
     pythonProcess.on("close", (code) => {
         console.log(`Python process exited with code ${code}`);
+        pythonReady = false;
     });
 }
 
 ipcMain.on("execute-task", (event, args) => {
+    if (!pythonReady) {
+        console.warn("⏳ Python이 아직 실행되지 않았음. 요청 대기 중...");
+        setTimeout(() => {
+            ipcMain.emit("execute-task", event, args);  // ✅ Python이 실행될 때까지 다시 시도
+        }, 500);  // 0.5초 후 재시도
+        return;
+    }
+
     if (pythonProcess) {
+        console.log("🚀 요청 전송...");
         pythonProcess.stdin.write(JSON.stringify(args) + "\n");
     }
 });
