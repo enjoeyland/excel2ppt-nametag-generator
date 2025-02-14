@@ -1,6 +1,6 @@
 {
   "name": "excel2ppt-nametag-generator",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Automatically generates nametags by loading data from Excel and inserting it into PowerPoint slides using a predefined template.",
   "main": "src/main.js",
   "scripts": {

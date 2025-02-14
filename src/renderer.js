@@ -12,7 +12,7 @@ const generateButtonText = generateButton.querySelector(".button-text");
 const loadingSpinner = document.getElementById('loading-spinner');
 
 generateButton.disabled = true;
-generateButton.classList.add('opacity-50', 'cursor-not-allowed');
+generateButton.classList.add('opacity-50');
 
 // Button Click Event
 document.getElementById('select-excel').addEventListener('click', () => {
@@ -23,41 +23,73 @@ document.getElementById('select-pptx').addEventListener('click', () => {
 });
 
 document.getElementById('generate').addEventListener('click', () => {
-    if (excelPath && pptxPath) {
-        generateButtonText.textContent = "처리중...";
-        loadingSpinner.classList.remove("hidden");
-        loadingSpinner.classList.add("inline-block");  
-        generateButton.disabled = true;
-        generateButton.classList.add("opacity-50", "cursor-not-allowed");
+    if (!excelPath || !pptxPath) {
+        showCustomAlert("❌ 오류", "파일을 선택해주세요.");
+    }
 
-        const paddingX = parseFloat(document.getElementById('padding_x').value) || 0;
-        const paddingY = parseFloat(document.getElementById('padding_y').value) || 0;
-        const marginX = parseFloat(document.getElementById('margin_x').value) || 0;
-        const marginY = parseFloat(document.getElementById('margin_y').value) || 0;
-        const perSlide = document.getElementById('per_slide').value === 'max' ? 'max' : parseInt(document.getElementById('per_slide').value) || 'max';
+    generateButtonText.textContent = "처리중...";
+    loadingSpinner.classList.remove("hidden");
+    loadingSpinner.classList.add("inline-block");  
+    generateButton.disabled = true;
+    generateButton.classList.add("opacity-50");
 
-        ipcRenderer.send('generate-pptx', {
-            excelPath,
-            pptxPath,
-            paddingX,
-            paddingY,
-            marginX,
-            marginY,
-            perSlide
-        });
+    const marginX = parseFloat(document.getElementById('margin_x').value) || 0;
+    const marginY = parseFloat(document.getElementById('margin_y').value) || 0;
+    const paddingX = parseFloat(document.getElementById('padding_x').value) || 0;
+    const paddingY = parseFloat(document.getElementById('padding_y').value) || 0;
+    const perSlide = document.getElementById('per_slide').value === 'max' ? null : parseInt(document.getElementById('per_slide').value) || null;
 
-        ipcRenderer.once("generate-complete", () => {
-            generateButtonText.textContent = "만들기";
-            loadingSpinner.classList.add("hidden");
-            loadingSpinner.classList.remove("inline-block");
-            generateButton.disabled = false;
-            generateButton.classList.remove("opacity-50", "cursor-not-allowed");
-        });
+    const requestData = {
+        task: "generate_pptx",
+        data: {
+            pptx: pptxPath,
+            excel: excelPath,
+            margin_x: marginX,
+            margin_y: marginY,
+            padding_x: paddingX,
+            padding_y: paddingY,
+            per_slide: perSlide
+        }
+    };
+    ipcRenderer.send("execute-task", requestData);
 
-    } else {
-        console.log('파일 경로가 필요합니다.');
+    ipcRenderer.once("generate-complete", () => {
+        generateButtonText.textContent = "만들기";
+        loadingSpinner.classList.add("hidden");
+        loadingSpinner.classList.remove("inline-block");
+        generateButton.disabled = false;
+        generateButton.classList.remove("opacity-50");
+    });     
+});
+
+ipcRenderer.on("task-result", (event, response) => {
+    if (response.task === "generate_pptx") {
+        ipcRenderer.emit("generate-complete");
+    }
+
+    if (response.status === "success") {
+        showCustomAlert("✅ 성공", `${response.message}`);
+        console.log("Success details:", response);
+    } 
+    else if (response.status === "developer_error") {
+        showCustomAlert("🛠️ 개발자 오류", `${response.message}`);
+        console.error("Developer Error details:", response);
+    }
+    else if (response.status === "error") {
+        showCustomAlert("❌ 오류", `${response.message}`);
+        console.error("Error details:", response);
     }
 });
+
+function showCustomAlert(title, message) {
+    document.getElementById("alert-title").textContent = title;
+    document.getElementById("alert-message").textContent = message;
+    document.getElementById("custom-alert").classList.remove("hidden");
+
+    document.getElementById("alert-close").addEventListener("click", () => {
+        document.getElementById("custom-alert").classList.add("hidden");
+    });
+}
 
 // IPC Event
 ipcRenderer.on('selected-excel', (event, filePath) => {
@@ -65,19 +97,6 @@ ipcRenderer.on('selected-excel', (event, filePath) => {
 });
 ipcRenderer.on('selected-pptx', (event, filePath) => {
     updateFileSelection('pptx', filePath);
-});
-ipcRenderer.on('python-output', (event, message) => {
-    const alertBox = document.createElement('div');
-    alertBox.innerHTML = message.replace(/\n/g, '<br>');
-    alertBox.classList.add('alert-box');
-    document.body.appendChild(alertBox);
-
-    setTimeout(() => {
-        alertBox.classList.add('fade-out');
-    }, 5000);
-    setTimeout(() => {
-        document.body.removeChild(alertBox);
-    }, 7000);
 });
 
 // Drag and Drop Event
@@ -130,8 +149,10 @@ function updateFileSelection(type, filePath) {
         statusElement = document.getElementById('select-pptx').querySelector('.button-text');
     }
 
-    if (!statusElement.textContent.endsWith('O')) {
-        statusElement.textContent += ' O';
+    if (!statusElement.querySelector(".fa-check-circle")) {
+        const checkIcon = document.createElement("i");
+        checkIcon.classList.add("fa", "fa-check-circle", "text-white-500", "ml-2"); // ✅ 초록색 체크 아이콘
+        statusElement.appendChild(checkIcon);
     }
 
     updateFileList();
@@ -158,9 +179,9 @@ function updateFileList() {
 function checkIfFilesSelected() {
     if (excelPath && pptxPath) {
         generateButton.disabled = false;
-        generateButton.classList.remove('opacity-50', 'cursor-not-allowed');
+        generateButton.classList.remove('opacity-50');
     } else {
         generateButton.disabled = true;
-        generateButton.classList.add('opacity-50', 'cursor-not-allowed');
+        generateButton.classList.add('opacity-50');
     }
 }
