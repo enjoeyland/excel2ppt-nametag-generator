@@ -70,12 +70,14 @@ function startPythonIPCServer() {
 ipcMain.on("execute-task", (event, args) => {
     if (!pythonReady) {
         console.warn("⏳ Python이 아직 실행되지 않았음. 요청 대기 중...");
+        win.webContents.send("python-waiting");
         setTimeout(() => {
-            ipcMain.emit("execute-task", event, args);  // ✅ Python이 실행될 때까지 다시 시도
-        }, 500);  // 0.5초 후 재시도
+            ipcMain.emit("execute-task", event, args);
+        }, 500);
         return;
     }
-
+    win.webContents.send("python-ready");
+    
     if (pythonProcess) {
         console.log("🚀 요청 전송...");
         pythonProcess.stdin.write(JSON.stringify(args) + "\n");

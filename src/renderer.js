@@ -85,6 +85,14 @@ ipcRenderer.on("task-result", (event, response) => {
     }
 });
 
+ipcRenderer.on("python-waiting", () => {
+    document.getElementById("python-loading-spinner").classList.remove("hidden");
+});
+
+ipcRenderer.on("python-ready", () => {
+    document.getElementById("python-loading-spinner").classList.add("hidden");
+});
+
 ipcRenderer.on("excel-header-complete", (event, response) => {
     if (!response.headers) {
         console.error("❌ headers가 없음:", response);

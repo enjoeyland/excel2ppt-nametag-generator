@@ -78,6 +78,13 @@
     </div>
   </div>
 
+  <div id="python-loading-spinner" class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+    <div class="flex flex-col items-center">
+        <div class="loader border-t-4 border-blue-500 border-solid rounded-full w-12 h-12 animate-spin"></div>
+        <p class="text-white text-lg font-bold mt-4">⏳ 로딩 중...</p>
+    </div>
+</div>
+
   <script src="renderer.js"></script>
   <style>
     #pptx-content-wrapper {
@@ -105,6 +112,21 @@
 
     #pptx-content-wrapper::-webkit-scrollbar-thumb:hover {
       background-color: #999;
+    }
+
+    .loader {
+        border-width: 4px;
+        border-top-color: #3498db;
+        border-right-color: transparent;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
     }
   </style>
 </body>
