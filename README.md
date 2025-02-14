@@ -49,10 +49,10 @@ npm start
 
 The Excel file containing the necessary information for the nametags should follow a format similar to the following:
 
-| Sample Num | Campus    | Name          | Position |
-| ---------- | --------- | ------------- | -------- |
-| 0          | Ajou Univ | Kyunghyun Min | SoonJang |
-| 1          | ABC Univ  | Jane Smith    | SoonWon  |
+| Sample Num | Campus       | Name          | Position |
+| ---------- | ------------ | ------------- | -------- |
+| 0          | Ajou Univ    | Kyunghyun Min | SoonJang |
+| 1          | Yonsei Univ  | Jane Smith    | SoonWon  |
 
 The 'Sample Num' column in the Excel file allows you to select from the provided sample templates. sample slide number is start from 0.
 For basic tamplate, [attendess_list.xlsx](template/attendess_list.xlsx) file.
@@ -88,6 +88,13 @@ For basic tamplate, [attendess_list.xlsx](template/attendess_list.xlsx) file.
 
 - **`--per_slide`:** Number of nametags per slide (e.g., `4`). If omitted, the script will use the maximum number of nametags per slide.
 
+- **`--rpc`:** Enables Remote Procedure Call (RPC) mode, allowing JSON-based argument passing through **Electron IPC**.  
+  - Used when interacting with the script via Electron instead of command-line arguments.
+  - Example usage in Electron:  
+    ```json
+    { "task": "generate_pptx", "data": { "excel": "data.xlsx", "pptx": "template.pptx" } }
+    ```
+
 ## File Structure
 
 ```
@@ -118,9 +125,11 @@ project-root/
 
 
 ### Description
-
-- `main.py`: Main script
 - `example.py`: Example run based on files in the example folder
+- `main.py`: Handles core functionality through `TaskManager`, providing the following features:
+  - `get_excel_header`: Extracts and processes headers from the Excel file.
+  - `get_pptx_slide_text`: Retrieves text content from PowerPoint slides.
+  - `generate_pptx`: Generates a PowerPoint file based on the provided data.
 - `src/`: Directory containing source code files, grouped as follows:
 
   1. **Nametag Creation and Slide Handling:**
