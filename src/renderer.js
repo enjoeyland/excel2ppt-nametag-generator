@@ -128,6 +128,8 @@ ipcRenderer.on("excel-header-complete", (event, response) => {
     });
 
     statusElement.innerHTML = headerHtml;
+
+    matchHeadersWithSlideText();
 });
 
 ipcRenderer.on("pptx-slide-text-complete", (event, response) => {
@@ -146,7 +148,7 @@ ipcRenderer.on("pptx-slide-text-complete", (event, response) => {
     slides.forEach((slideTexts, index) => {
         slideTexts = slideTexts.sort((a, b) => a.localeCompare(b));
         let slideHtml = `
-            <div class="flex items-center gap-2 mb-2">
+            <div class="flex items-center mb-2 gap-2">
                 <span class="px-2 py-1 bg-red-200 text-red-700 rounded font-bold">
                     <i class="fas fa-file-powerpoint"></i> Sample ${index}
                 </span>
@@ -160,16 +162,55 @@ ipcRenderer.on("pptx-slide-text-complete", (event, response) => {
             });
         } else {
             slideHtml += `
-                <span class="px-2 py-1 bg-yellow-200 rounded">⚠️ 텍스트 없음</span>
+                <span class="px-2 py-1 bg-yellow-200 rounded font-bold">⚠️ 텍스트 없음</span>
                 <span class="text-gray-600 text-sm">(동일하게 복사됩니다.)</span>
             `;
         }
 
         slideHtml += `</div>`;
         statusElement.innerHTML += slideHtml;
+
+        matchHeadersWithSlideText();
     });
 });
 
+function matchHeadersWithSlideText() {
+    const headerElements = document.querySelectorAll("#header-status span");
+    const slideTextElements = document.querySelectorAll("#slide-text-status span");
+
+    slideTextElements.forEach(el => {
+        if (el.textContent.includes("⚠️") || el.textContent.trim().startsWith("Sample")) {
+            return;
+        }
+        el.innerHTML = el.innerHTML.replace(/<i class="fa fa-file-excel text-green-700"><\/i>/g, "");
+        el.classList.remove("font-bold");
+    });
+    headerElements.forEach(el => {
+        if (el.textContent.trim() === "sample num" || el.textContent.trim() === "Excel 헤더") {
+            return;
+        }
+        el.classList.remove("font-bold");
+    });
+    
+    const headers = new Map();
+    headerElements.forEach(el => {
+        const text = el.textContent.trim().toLowerCase();
+        headers.set(text, el);
+    });
+
+    slideTextElements.forEach(el => {
+        const text = el.textContent.trim().toLowerCase();
+        if (headers.has(text)) {
+            el.classList.add("font-bold");
+            el.innerHTML += ' <i class="fa fa-file-excel text-green-700"></i>';
+
+            const headerEl = headers.get(text);
+            if (headerEl) {
+                headerEl.classList.add("font-bold");
+            }
+        }
+    });
+}
 
 function showCustomAlert(title, message) {
     document.getElementById("alert-title").textContent = title;
