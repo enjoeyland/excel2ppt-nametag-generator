@@ -39,6 +39,10 @@ class GetExcelHeaderRequest:
     excel: str
 
 @dataclass
+class GetPptxTextRequest:
+    pptx: str
+
+@dataclass
 class GenerateRequest:
     pptx: str
     excel: str
@@ -53,6 +57,7 @@ class TaskManger:
         self.is_gui = is_gui
         self.tasks = {
             "get_excel_header": (self.get_excel_header, GetExcelHeaderRequest),
+            "get_pptx_slide_text": (self.get_pptx_slide_text, GetPptxTextRequest),
             "generate_pptx": (self.generate_pptx, GenerateRequest),
         }
 
@@ -79,6 +84,17 @@ class TaskManger:
     def get_excel_header(self, data: GetExcelHeaderRequest):
         headers, _ = read_excel_data(data.excel)
         return {"status": "success", "headers": headers}
+
+    def get_pptx_slide_text(self, data: GetPptxTextRequest):
+        prs = Presentation(data.pptx)
+        slides_text = []
+        for slide in prs.slides:
+            slide_text = []
+            for shape in slide.shapes:
+                if shape.has_text_frame and shape.text_frame.text.strip():
+                    slide_text.append(shape.text_frame.text.strip())
+            slides_text.append(slide_text)
+        return {"status": "success", "slides": slides_text}
     
     def generate_pptx(self, data: GenerateRequest):
         if not data.pptx or not data.excel:

@@ -67,6 +67,8 @@ ipcRenderer.on("task-result", (event, response) => {
         ipcRenderer.emit("generate-complete");
     } else if (response.task === "get_excel_header") {
         ipcRenderer.emit("excel-header-complete", event, response);
+    } else if (response.task === "get_pptx_slide_text") {
+        ipcRenderer.emit("pptx-slide-text-complete", event, response);
     }
 
     if (response.status === "success" && response.message) {
@@ -84,14 +86,18 @@ ipcRenderer.on("task-result", (event, response) => {
 });
 
 ipcRenderer.on("excel-header-complete", (event, response) => {
-    if (!response || !response.headers) {
-        console.error("❌ response 또는 headers가 없음:", response);
+    if (!response.headers) {
+        console.error("❌ headers가 없음:", response);
         showCustomAlert("🛠️ 개발자 오류", "headers 속성이 누락되었습니다. Python 응답을 확인하세요.");
         return;
     }
 
     console.log("✅ Excel 헤더 목록:", response.headers);
-    const headers = response.headers;
+    let headers = response.headers;
+    headers = headers
+        .filter(header => header.toLowerCase() !== "sample num")
+        .sort((a, b) => a.localeCompare(b));
+    headers.unshift("sample num");
 
     const statusElement = document.getElementById("header-status");
     let headerHtml =  `
@@ -103,25 +109,65 @@ ipcRenderer.on("excel-header-complete", (event, response) => {
     const hasSampleNum = headers.includes("sample num");
     if (hasSampleNum) {
         headerHtml += `
-            <span class="px-2 py-1 bg-gray-200 rounded flex items-center">
+            <span class="px-2 py-1 bg-gray-200 rounded flex items-center font-bold">
                 sample num <i class="fa fa-check-circle text-green-500 ml-2"></i>
             </span>
         `;
     } else {
         headerHtml += `
-            <span class="px-2 py-1 bg-gray-200 rounded flex items-center">
+            <span class="px-2 py-1 bg-gray-200 rounded flex items-center font-bold">
                 sample num <i class="fa fa-times-circle text-red-500 ml-2"></i>
             </span>
         `;
     }
 
     headers.forEach(header => {
-        if (header.toLowerCase() !== "sample num") {
+        if (header !== "sample num") {
             headerHtml += `<span class="px-2 py-1 bg-gray-200 rounded">${header}</span>`;
         }
     });
 
     statusElement.innerHTML = headerHtml;
+});
+
+ipcRenderer.on("pptx-slide-text-complete", (event, response) => {
+    if (!response.slides) {
+        console.error("❌ slides가 없음:", response);
+        showCustomAlert("🛠️ 개발자 오류", "slides 속성이 누락되었습니다. Python 응답을 확인하세요.");
+        return;
+    }
+
+    console.log("✅ PPTX 슬라이드 텍스트:", response.slides);
+    const slides = response.slides;
+
+    const statusElement = document.getElementById("slide-text-status");
+    statusElement.innerHTML = "";
+
+    slides.forEach((slideTexts, index) => {
+        slideTexts = slideTexts.sort((a, b) => a.localeCompare(b));
+        let slideHtml = `
+            <div class="flex items-center gap-2 mb-2">
+                <span class="px-2 py-1 bg-red-200 text-red-700 rounded font-bold">
+                    <i class="fas fa-file-powerpoint"></i> Sample ${index}
+                </span>
+        `;
+
+        if (slideTexts.length > 0) {
+            slideTexts.forEach(text => {
+                slideHtml += `
+                    <span class="px-2 py-1 bg-gray-200 rounded">${text}</span>
+                `;
+            });
+        } else {
+            slideHtml += `
+                <span class="px-2 py-1 bg-yellow-200 rounded">⚠️ 텍스트 없음</span>
+                <span class="text-gray-600 text-sm">(동일하게 복사됩니다.)</span>
+            `;
+        }
+
+        slideHtml += `</div>`;
+        statusElement.innerHTML += slideHtml;
+    });
 });
 
 
@@ -198,6 +244,13 @@ function updateFileSelection(type, filePath) {
     } else if (type === 'pptx') {
         pptxPath = filePath;
         statusElement = document.getElementById('select-pptx').querySelector('.button-text');
+        const requestData = {
+            task: "get_pptx_slide_text",
+            data: {
+                pptx: pptxPath,
+            }
+        };
+        ipcRenderer.send("execute-task", requestData);
     }
 
     if (!statusElement.querySelector(".fa-check-circle")) {
