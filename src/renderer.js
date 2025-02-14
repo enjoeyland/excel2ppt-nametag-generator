@@ -65,9 +65,11 @@ document.getElementById('generate').addEventListener('click', () => {
 ipcRenderer.on("task-result", (event, response) => {
     if (response.task === "generate_pptx") {
         ipcRenderer.emit("generate-complete");
+    } else if (response.task === "get_excel_header") {
+        ipcRenderer.emit("excel-header-complete", event, response);
     }
 
-    if (response.status === "success") {
+    if (response.status === "success" && response.message) {
         showCustomAlert("✅ 성공", `${response.message}`);
         console.log("Success details:", response);
     } 
@@ -80,6 +82,48 @@ ipcRenderer.on("task-result", (event, response) => {
         console.error("Error details:", response);
     }
 });
+
+ipcRenderer.on("excel-header-complete", (event, response) => {
+    if (!response || !response.headers) {
+        console.error("❌ response 또는 headers가 없음:", response);
+        showCustomAlert("🛠️ 개발자 오류", "headers 속성이 누락되었습니다. Python 응답을 확인하세요.");
+        return;
+    }
+
+    console.log("✅ Excel 헤더 목록:", response.headers);
+    const headers = response.headers;
+
+    const statusElement = document.getElementById("header-status");
+    let headerHtml =  `
+        <span class="px-2 py-1 bg-green-200 text-green-800 rounded flex items-center font-bold">
+            <i class="fa fa-file-excel mr-2"></i> Excel 헤더
+        </span>
+    `;
+    
+    const hasSampleNum = headers.includes("sample num");
+    if (hasSampleNum) {
+        headerHtml += `
+            <span class="px-2 py-1 bg-gray-200 rounded flex items-center">
+                sample num <i class="fa fa-check-circle text-green-500 ml-2"></i>
+            </span>
+        `;
+    } else {
+        headerHtml += `
+            <span class="px-2 py-1 bg-gray-200 rounded flex items-center">
+                sample num <i class="fa fa-times-circle text-red-500 ml-2"></i>
+            </span>
+        `;
+    }
+
+    headers.forEach(header => {
+        if (header.toLowerCase() !== "sample num") {
+            headerHtml += `<span class="px-2 py-1 bg-gray-200 rounded">${header}</span>`;
+        }
+    });
+
+    statusElement.innerHTML = headerHtml;
+});
+
 
 function showCustomAlert(title, message) {
     document.getElementById("alert-title").textContent = title;
@@ -144,6 +188,13 @@ function updateFileSelection(type, filePath) {
     if (type === 'excel') {
         excelPath = filePath;
         statusElement = document.getElementById('select-excel').querySelector('.button-text');
+        const requestData = {
+            task: "get_excel_header",
+            data: {
+                excel: excelPath,
+            }
+        };
+        ipcRenderer.send("execute-task", requestData);
     } else if (type === 'pptx') {
         pptxPath = filePath;
         statusElement = document.getElementById('select-pptx').querySelector('.button-text');
@@ -151,7 +202,7 @@ function updateFileSelection(type, filePath) {
 
     if (!statusElement.querySelector(".fa-check-circle")) {
         const checkIcon = document.createElement("i");
-        checkIcon.classList.add("fa", "fa-check-circle", "text-white-500", "ml-2"); // ✅ 초록색 체크 아이콘
+        checkIcon.classList.add("fa", "fa-check-circle", "text-white-500", "ml-2");
         statusElement.appendChild(checkIcon);
     }
 

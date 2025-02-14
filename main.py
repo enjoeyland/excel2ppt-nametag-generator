@@ -9,7 +9,7 @@ from pptx import Presentation
 from tkinter import filedialog, messagebox
 
 from src.draw_slide import SlideDrawer
-from src.utils import get_data_by_sample, open_file_with_default_program
+from src.utils import get_data_by_sample, open_file_with_default_program, read_excel_data
 from src.gui import get_args_by_gui
 
 logging.basicConfig(level=logging.WARNING, format='%(levelname)s: %(message)s')
@@ -35,6 +35,10 @@ def get_args():
     return args
 
 @dataclass
+class GetExcelHeaderRequest:
+    excel: str
+
+@dataclass
 class GenerateRequest:
     pptx: str
     excel: str
@@ -48,6 +52,7 @@ class TaskManger:
     def __init__(self, is_gui):
         self.is_gui = is_gui
         self.tasks = {
+            "get_excel_header": (self.get_excel_header, GetExcelHeaderRequest),
             "generate_pptx": (self.generate_pptx, GenerateRequest),
         }
 
@@ -70,7 +75,11 @@ class TaskManger:
             response.update({"status": "developer_error", "message": f"Unknown task: {task}"})
 
         print(json.dumps(response))
-       
+    
+    def get_excel_header(self, data: GetExcelHeaderRequest):
+        headers, _ = read_excel_data(data.excel)
+        return {"status": "success", "headers": headers}
+    
     def generate_pptx(self, data: GenerateRequest):
         if not data.pptx or not data.excel:
             return {"status": "error", "message": "Missing required parameters"}
