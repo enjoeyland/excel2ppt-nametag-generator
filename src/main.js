@@ -67,20 +67,24 @@ function startPythonIPCServer() {
     });
 }
 
-ipcMain.on("execute-task", (event, args) => {
+ipcMain.on("execute-task", (event, requestData) => {
     if (!pythonReady) {
         console.warn("⏳ Python이 아직 실행되지 않았음. 요청 대기 중...");
-        win.webContents.send("python-waiting");
+        if (requestData.task === "generate_pptx") {
+            win.webContents.send("python-waiting");
+        }
         setTimeout(() => {
-            ipcMain.emit("execute-task", event, args);
+            ipcMain.emit("execute-task", event, requestData);
         }, 500);
         return;
     }
-    win.webContents.send("python-ready");
+    if (requestData.task === "generate_pptx") {
+        win.webContents.send("python-ready");
+    }
     
     if (pythonProcess) {
         console.log("🚀 요청 전송...");
-        pythonProcess.stdin.write(JSON.stringify(args) + "\n");
+        pythonProcess.stdin.write(JSON.stringify(requestData) + "\n");
     }
 });
 
