@@ -14,6 +14,11 @@ from src.gui import get_args_by_gui
 
 logging.basicConfig(level=logging.WARNING, format='%(levelname)s: %(message)s')
 
+# TODO: Sample num(0부터 시작) -> Slide num(1부터 시작)으로 재정의
+# TODO: pad(tag 옆 공간), margin(tag 간 공간) -> pad(tag 간 공간), margin(page 윗 공간) 재정의 
+# TODO: label template 생성; 직사각현 실선으로 내용물 범위 표시, picture placeholder로 배경범위 표시
+# TODO: label template 선택 UI 추가 +alpha 사용자 지정 가능하도록 
+
 def get_args():
     parser = argparse.ArgumentParser(description="Create nametag pptx from excel file")
     parser.add_argument("--excel", type=str, help="Excel file name")
