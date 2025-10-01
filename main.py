@@ -147,7 +147,7 @@ class TaskManger:
                     per_slide=data.per_slide
                 )
             except Exception as e:
-                return {"status": "error", "message": f"Error while drawing slide {i}: {str(e)}"},
+                return {"status": "developer_error", "message": f"Error while drawing slide {i}: {str(e)}"}
 
         filename = filedialog.asksaveasfilename(
             defaultextension=".pptx",
@@ -185,7 +185,7 @@ if __name__ == "__main__":
                 request = json.loads(line.strip())
                 task_manager.process_request(request)
             except Exception as e:
-                print(json.dumps({"status": "error", "message": str(e)})) # task??
+                print(json.dumps({"status": "developer_error", "message": str(e)}))
     else:
         data = GenerateRequest(
             pptx=args.pptx,

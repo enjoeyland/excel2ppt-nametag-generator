@@ -38,22 +38,24 @@ function startPythonIPCServer() {
     pythonProcess = spawn(pythonCommand[0], [...pythonCommand.slice(1), "--rpc"], { stdio: ["pipe", "pipe", "pipe"] });
 
     pythonProcess.stdout.on("data", (data) => {
-        const text = data.toString().trim();   
-        try {
-            const response = JSON.parse(text);
+        const text = data.toString().trim();
+        for (const line of text.split("\n\n")) {
+            try {
+                const response = JSON.parse(line);
 
-            if (response && response.status) {
-                console.log(`Sending to renderer:`, response);
-                win.webContents.send("task-result", response);
-            } else {
-                console.warn("Received JSON but no 'status' field:", response);
+                if (response && response.status) {
+                    console.log(`Sending to renderer:`, response);
+                    win.webContents.send("task-result", response);
+                } else {
+                    console.warn("Received JSON but no 'status' field:", response);
+                }
+            } catch (error) {
+                if (text.includes("ready")) {
+                    console.log("✅ Python 실행 완료! 이제 요청을 받을 수 있음.");
+                    pythonReady = true;
+                }
+                console.log(`Python: ${line}`);
             }
-        } catch (error) {
-            if (text.includes("ready")) {
-                console.log("✅ Python 실행 완료! 이제 요청을 받을 수 있음.");
-                pythonReady = true;
-            }
-            console.log(`Python: ${text}`);
         }
     });
 
