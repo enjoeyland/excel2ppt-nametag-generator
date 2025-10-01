@@ -1,3 +1,4 @@
+import io
 import os
 import sys
 import json
@@ -18,6 +19,9 @@ logging.basicConfig(level=logging.WARNING, format='%(levelname)s: %(message)s')
 # TODO: pad(tag 옆 공간), margin(tag 간 공간) -> pad(tag 간 공간), margin(page 윗 공간) 재정의 
 # TODO: label template 생성; 직사각현 실선으로 내용물 범위 표시, picture placeholder로 배경범위 표시
 # TODO: label template 선택 UI 추가 +alpha 사용자 지정 가능하도록 
+# TODO: Group 안에 있는 텍스트 박스는 대체 가능한 텍스트 박으로 인식 못하고 있음
+# TODO: 회전을 시키면 크기 계산에 오류가 생김
+# TODO: 파일이 열려 있어서, permission denied 에러가 발생할 때 에러 핸들리을 안하고 있음
 
 def get_args():
     parser = argparse.ArgumentParser(description="Create nametag pptx from excel file")
@@ -151,6 +155,7 @@ if __name__ == "__main__":
     if args.rpc:
         print("Python RPC mode ready")
 
+        sys.stdin = io.TextIOWrapper(sys.stdin.buffer, encoding='utf-8')
         sys.stdout.reconfigure(line_buffering=True)
         for line in sys.stdin:
             try:
