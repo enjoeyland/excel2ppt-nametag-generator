@@ -7,6 +7,7 @@ import argparse
 
 from dataclasses import dataclass
 from pptx import Presentation
+from pptx.enum.shapes import MSO_SHAPE_TYPE
 from tkinter import filedialog, messagebox
 
 from src.draw_slide import SlideDrawer
@@ -19,8 +20,6 @@ logging.basicConfig(level=logging.WARNING, format='%(levelname)s: %(message)s')
 # TODO: pad(tag 옆 공간), margin(tag 간 공간) -> pad(tag 간 공간), margin(page 윗 공간) 재정의 
 # TODO: label template 생성; 직사각현 실선으로 내용물 범위 표시, picture placeholder로 배경범위 표시
 # TODO: label template 선택 UI 추가 +alpha 사용자 지정 가능하도록 
-# TODO: Group 안에 있는 텍스트 박스는 대체 가능한 텍스트 박으로 인식 못하고 있음
-# TODO: 회전을 시키면 크기 계산에 오류가 생김
 
 def get_args():
     parser = argparse.ArgumentParser(description="Create nametag pptx from excel file")
@@ -122,9 +121,12 @@ class TaskManger:
         slides_text = []
         for slide in prs.slides:
             slide_text = []
-            for shape in slide.shapes:
+            shapes_to_process = list(slide.shapes)
+            for shape in shapes_to_process:
                 if shape.has_text_frame and shape.text_frame.text.strip():
                     slide_text.append(shape.text_frame.text.strip())
+                elif hasattr(shape, 'shapes') and shape.shape_type == MSO_SHAPE_TYPE.GROUP:
+                    shapes_to_process.extend(shape.shapes)
             slides_text.append(slide_text)
         return {"status": "success", "slides": slides_text}
     
