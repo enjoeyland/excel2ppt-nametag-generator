@@ -21,7 +21,6 @@ logging.basicConfig(level=logging.WARNING, format='%(levelname)s: %(message)s')
 # TODO: label template 선택 UI 추가 +alpha 사용자 지정 가능하도록 
 # TODO: Group 안에 있는 텍스트 박스는 대체 가능한 텍스트 박으로 인식 못하고 있음
 # TODO: 회전을 시키면 크기 계산에 오류가 생김
-# TODO: 파일이 열려 있어서, permission denied 에러가 발생할 때 에러 핸들리을 안하고 있음
 
 def get_args():
     parser = argparse.ArgumentParser(description="Create nametag pptx from excel file")
@@ -43,13 +42,32 @@ def get_args():
         args.gui = True
     return args
 
+def assert_file_valid(file_path):
+    if not file_path:
+        raise ValueError("Missing required parameters")
+    
+    if not os.path.exists(file_path):
+        raise ValueError(
+            f"File Path Encoding Error\n"
+            f"Problematic File: {file_path}\n"
+            f"System Encodings:\n"
+            f"  - Default: {sys.getdefaultencoding()}\n"
+            f"  - Filesystem: {sys.getfilesystemencoding()}\n"
+        )
+
 @dataclass
 class GetExcelHeaderRequest:
     excel: str
+    
+    def __post_init__(self):
+        assert_file_valid(self.excel)
 
 @dataclass
 class GetPptxTextRequest:
     pptx: str
+    
+    def __post_init__(self):
+        assert_file_valid(self.pptx)
 
 @dataclass
 class GenerateRequest:
@@ -60,6 +78,10 @@ class GenerateRequest:
     padding_x: float = 0.0
     padding_y: float = 0.0
     per_slide: int = None
+
+    def __post_init__(self):
+        assert_file_valid(self.pptx)
+        assert_file_valid(self.excel)
 
 class TaskManger:
     def __init__(self, is_gui):
@@ -79,9 +101,10 @@ class TaskManger:
             function, dataclass_type = self.tasks[task]
             try:
                 request_data = dataclass_type(**data)
+            except ValueError as e:
+                response.update({"status": "error", "message": str(e)})
             except TypeError as e:
                 response.update({"status": "developer_error", "message": f"Invalid parameters for {task}: {str(e)}"})
-                response = {"status": "developer_error", "message": f"Invalid parameters for {task}: {str(e)}", "task": task}
             else:
                 _response = function(request_data)
                 response.update(_response)
@@ -106,9 +129,6 @@ class TaskManger:
         return {"status": "success", "slides": slides_text}
     
     def generate_pptx(self, data: GenerateRequest):
-        if not data.pptx or not data.excel:
-            return {"status": "error", "message": "Missing required parameters"}
-
         prs = Presentation(data.pptx)
         sample_num = len(prs.slides)
 
@@ -136,9 +156,12 @@ class TaskManger:
             initialfile=f"generated-{os.path.basename(data.pptx)}"
         )
         if filename:
-            prs.save(filename)
-            open_file_with_default_program(filename)
-            return {"status": "success", "message": f"PPTX saved as '{os.path.basename(filename)}'"}
+            try:
+                prs.save(filename)
+                open_file_with_default_program(filename)
+                return {"status": "success", "message": f"PPTX saved as '{os.path.basename(filename)}'"}
+            except PermissionError:
+                return {"status": "error", "message": f"Close the file '{os.path.basename(filename)}' to save"}
         else:
             return {"status": "success", "message": "Saving PPTX canceled by user"}
 
