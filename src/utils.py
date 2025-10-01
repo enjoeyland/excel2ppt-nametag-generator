@@ -2,6 +2,7 @@ import subprocess, os, platform
 
 from collections import defaultdict
 from openpyxl import load_workbook
+from pptx.oxml.ns import qn
 
 class dotdict(dict):
     """dot.notation access to dictionary attributes"""
@@ -111,3 +112,23 @@ def set_shadow(source_shadow, target_shadow): # BaseShape
 def set_base_shape(source_shape, target_shape): # BaseShape
     target_shape.rotation = source_shape.rotation
     set_shadow(source_shape.shadow, target_shape.shadow)
+
+
+def qn_xpath(xpath: str) -> str:
+    """
+    XPath 문자열에서 네임스페이스 접두어(prefix)를 자동 변환하여 Clark-notation 형식으로 변환하는 함수.
+    
+    :param xpath: 네임스페이스 접두어(prefix)가 포함된 XPath 문자열 (예: ".//p:guideLst")
+    :return: 변환된 XPath 문자열 (예: ".//{http://schemas...}guideLst")
+    """
+    parts = xpath.split('/')  # XPath를 '/' 기준으로 나누기
+    transformed_parts = [qn(tag) if ':' in tag else tag for tag in parts]  # 네임스페이스가 있는 경우 변환
+    return '/'.join(transformed_parts)  # 변환된 태그들을 다시 합쳐서 반환
+
+def pretty_print_xml(element):
+    """XML을 보기 좋게 출력하는 함수"""
+    import xml.etree.ElementTree as ET
+    import xml.dom.minidom
+    rough_string = ET.tostring(element, encoding="unicode")
+    reparsed = xml.dom.minidom.parseString(rough_string)
+    print(reparsed.toprettyxml(indent="  "))
