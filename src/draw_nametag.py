@@ -41,7 +41,7 @@ class NameTagDrawer(ShapeDrawer):
         shapes = list(slide.shapes)
         for shape in shapes:
             if __debug__:
-                print("(debug) shape:", shape.name, shape.shape_type, end="\n\n")
+                print("(debug) shape:", shape.name, shape.shape_type, flush=True)
             sd = ShapeDrawer.create(shape)
             if sd is None:
                 continue

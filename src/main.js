@@ -35,11 +35,14 @@ function startPythonIPCServer() {
     console.log("🚀 Python IPC 서버 시작...");
 
     const pythonCommand = getPythonScript();
-    pythonProcess = spawn(pythonCommand[0], [...pythonCommand.slice(1), "--rpc"], { stdio: ["pipe", "pipe", "pipe"] });
+    pythonProcess = spawn(pythonCommand[0], [...pythonCommand.slice(1), "--rpc"], { 
+        stdio: ["pipe", "pipe", "pipe"],
+        encoding: 'utf8'
+    });
 
     pythonProcess.stdout.on("data", (data) => {
         const text = data.toString().trim();
-        for (const line of text.split("\n\n")) {
+        for (const line of text.split("\n")) {
             try {
                 const response = JSON.parse(line);
 
@@ -86,7 +89,7 @@ ipcMain.on("execute-task", (event, requestData) => {
     
     if (pythonProcess) {
         console.log("🚀 요청 전송...");
-        pythonProcess.stdin.write(JSON.stringify(requestData) + "\n");
+        pythonProcess.stdin.write(JSON.stringify(requestData, null, 0) + "\n", 'utf8');
     }
 });
 

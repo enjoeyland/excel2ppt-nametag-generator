@@ -110,7 +110,7 @@ class TaskManger:
         else:
             response.update({"status": "developer_error", "message": f"Unknown task: {task}"})
 
-        print(json.dumps(response))
+        print(json.dumps(response, ensure_ascii=False), flush=True)
     
     def get_excel_header(self, data: GetExcelHeaderRequest):
         headers, _ = read_excel_data(data.excel)
@@ -181,13 +181,15 @@ if __name__ == "__main__":
         print("Python RPC mode ready")
 
         sys.stdin = io.TextIOWrapper(sys.stdin.buffer, encoding='utf-8')
-        sys.stdout.reconfigure(line_buffering=True)
+        sys.stdout.reconfigure(encoding='utf-8', line_buffering=True)
+        sys.stderr.reconfigure(encoding='utf-8')
+        
         for line in sys.stdin:
             try:
                 request = json.loads(line.strip())
                 task_manager.process_request(request)
             except Exception as e:
-                print(json.dumps({"status": "developer_error", "message": str(e)}))
+                print(json.dumps({"status": "developer_error", "message": str(e)}, ensure_ascii=False), flush=True)
     else:
         data = GenerateRequest(
             pptx=args.pptx,
