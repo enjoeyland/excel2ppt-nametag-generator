@@ -12,7 +12,9 @@ class SlidePositioner:
         self.margin = margin
 
         self.num_col, self.num_row = self.get_max_col_row()
+        assert per_slide is None or per_slide > 0, "per_slide must be a positive integer or None."
         self.num_per_slide = self.num_col * self.num_row if per_slide is None else min(per_slide, self.num_col * self.num_row)
+        assert self.num_per_slide > 0, "Sample size is too large to fit in the slide with the given margins and padding."
         self.left, self.top = self._get_start_pos()
         self.data_by_slide = chunk_list(data, self.num_per_slide)
 
