@@ -21,8 +21,6 @@ logging.basicConfig(level=logging.WARNING, format='%(levelname)s: %(message)s')
 # TODO: label template 생성; 직사각현 실선으로 내용물 범위 표시, picture placeholder로 배경범위 표시
 # TODO: label template 선택 UI 추가 +alpha 사용자 지정 가능하도록
 
-# TODO: 텍스트 박스 내 여러 글자 크기 처리
-
 def get_args():
     parser = argparse.ArgumentParser(description="Create nametag pptx from excel file")
     parser.add_argument("--excel", type=str, help="Excel file name")

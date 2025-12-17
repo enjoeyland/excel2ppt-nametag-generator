@@ -1,6 +1,6 @@
 from pptx.text.text import _Run
 
-from ..utils import set_color
+from ..utils import set_fill
 
 # Add setter for font
 def font(self, font):
@@ -10,7 +10,7 @@ def font(self, font):
     self.font.name = font.name
     self.font.size = font.size
     self.font.underline = font.underline
-    set_color(font, self.font)
+    set_fill(font, self.font)
     # strikethrough is not implemented in python-pptx
     #     rPr = p._r.get_or_add_rPr()
     #     strike_xml = '<a:strike {} val="sngStrike"/>'.format(nsdecls('a'))

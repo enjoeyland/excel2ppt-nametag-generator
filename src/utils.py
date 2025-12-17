@@ -3,6 +3,7 @@ import subprocess, os, platform
 from collections import defaultdict
 from openpyxl import load_workbook
 from pptx.enum.dml import MSO_COLOR_TYPE, MSO_FILL
+from pptx.enum.text import PP_ALIGN
 from pptx.oxml.ns import qn
 
 class dotdict(dict):
@@ -150,6 +151,38 @@ def set_shadow(source_shadow, target_shadow): # BaseShape
 def set_base_shape(source_shape, target_shape): # BaseShape
     target_shape.rotation = source_shape.rotation
     set_shadow(source_shape.shadow, target_shape.shadow)
+
+def set_text(source_shape, target_shape):
+    """텍스트 프레임의 모든 paragraphs와 runs를 복사 (여러 글자 크기 처리)"""
+    # TODO: 글자는 없는데 font size가 다른 경우 처리
+    # TODO: shift+enter로 된 paragraph 처리
+    try:
+        if not (source_shape.has_text_frame and target_shape.has_text_frame):
+            return
+        
+        source_tf = source_shape.text_frame
+        target_tf = target_shape.text_frame
+
+        target_tf.clear()
+
+        # 모든 paragraphs 복사
+        for i, source_p in enumerate(source_tf.paragraphs):
+            target_p = target_tf.paragraphs[0] if i == 0 else target_tf.add_paragraph()
+            target_p.alignment = source_p.alignment or PP_ALIGN.LEFT
+            
+            # 각 paragraph의 모든 runs 복사
+            if len(source_p.runs) > 0:
+                for source_r in source_p.runs:
+                    target_r = target_p.add_run()
+                    target_r.font = source_r.font  # font 속성 전체 복사 (크기, 색상 등)
+                    target_r.text = source_r.text
+            else:
+                # runs가 없으면 paragraph의 기본 텍스트 사용
+                target_r = target_p.add_run()
+                target_r.font = source_p.font
+                target_r.text = source_p.text
+    except (AttributeError, TypeError):
+        pass
 
 
 def qn_xpath(xpath: str) -> str:

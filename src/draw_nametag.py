@@ -82,7 +82,7 @@ class NameTagDrawer(ShapeDrawer):
         for drawer in self.drawers:
             if isinstance(drawer, TextBoxDrawer) or isinstance(drawer, AutoShapeDrawer):
                 if drawer.label in data:
-                    drawer.set_text(data[drawer.label])
+                    drawer.substitute_label(data[drawer.label])
 
 def _get_rotated_bounding_box(shape):
     """

@@ -16,7 +16,7 @@ from pptx.oxml import parse_xml
 from pptx.oxml.ns import nsdecls
 from pptx.oxml.ns import qn
 
-from .utils import set_fill, set_line, set_base_shape
+from .utils import set_fill, set_line, set_base_shape, set_text
 
 class ShapeDrawer(ABC):
     def __init__(self, shape: Picture|BaseShape):
@@ -93,18 +93,18 @@ class TextBoxDrawer(ShapeDrawer):
         set_base_shape(self.shape, shape)
         set_fill(self.shape, shape)
         set_line(self.shape.line, shape.line)
-        p = shape.text_frame.paragraphs[0]
-        p.alignment = self.shape.text_frame.paragraphs[0].alignment or PP_ALIGN.LEFT
-        r = p.add_run()
-        r.font = self.shape.text_frame.paragraphs[0].runs[0].font
-        r.text = self.shape.text
-        self.drawed_shape = p
-        return p
+        set_text(self.shape, shape)
+        self.drawed_shape = shape
+        return shape
     
-    def set_text(self, text: str):
+    def substitute_label(self, text: str):
         if self.drawed_shape is None:
             raise ValueError("Shape is not drawn yet")
-        self.drawed_shape.runs[0].text = text
+        for p in self.drawed_shape.text_frame.paragraphs:
+            for run in p.runs:
+                if run.text.strip().lower() == self.label:
+                    run.text = text
+                    return
 
 class AutoShapeDrawer(ShapeDrawer):
     def __init__(self, shape: Shape):
@@ -124,15 +124,18 @@ class AutoShapeDrawer(ShapeDrawer):
         set_base_shape(self.shape, shape)
         set_fill(self.shape, shape)
         set_line(self.shape.line, shape.line)
-        shape.text = self.shape.text
-
+        set_text(self.shape, shape)
         self.drawed_shape = shape
         return shape
 
-    def set_text(self, text: str):
+    def substitute_label(self, text: str):
         if self.drawed_shape is None:
             raise ValueError("Shape is not drawn yet")
-        self.drawed_shape.text = text
+        for p in self.drawed_shape.text_frame.paragraphs:
+            for run in p.runs:
+                if run.text.strip().lower() == self.label:
+                    run.text = text
+                    return
 
 class ConnectorDrawer(ShapeDrawer):
     def __init__(self, shape: Picture):
