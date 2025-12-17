@@ -79,7 +79,7 @@ def open_file_with_default_program(filename):
     else:
         raise FileNotFoundError(f"No file found at {filename}")
     
-def set_color(source_shape, target_shape):
+def set_fill(source_shape, target_shape):
     try:
         if source_shape.fill.type is None:
             pass
@@ -99,6 +99,34 @@ def set_color(source_shape, target_shape):
                 target_shape.fill.background()
             else:
                 print(f"Unsupported color type: {source_shape.fill.fore_color.type}")
+        elif source_shape.fill.type == MSO_FILL.PICTURE:
+            import xml.etree.ElementTree as ET
+            from pptx.oxml import parse_xml
+            from io import BytesIO
+            
+            source_blipFill = source_shape.fill._xPr.find(qn('a:blipFill'))
+            blip_elem = source_blipFill.find(qn('a:blip'))
+            old_rId = blip_elem.get(qn('r:embed'))
+
+            # 원본 이미지 가져오기
+            source_image = source_shape.part.get_image(old_rId)
+            image_blob = BytesIO(source_image.blob)
+            
+            # target slide에 이미지 추가
+            target_slide_shapes = target_shape.part.slide.shapes
+            image_part, new_rId = target_slide_shapes.part.get_or_add_image_part(image_blob)
+            
+            # blipFill XML 복사
+            blipFill_xml = ET.tostring(source_blipFill, encoding='unicode')
+            blipFill_copy = parse_xml(blipFill_xml)
+            
+            # rId 업데이트
+            blip_copy_elem = blipFill_copy.find(qn('a:blip'))
+            if blip_copy_elem is not None:
+                blip_copy_elem.set(qn('r:embed'), new_rId)
+
+            # 새 blipFill 추가
+            target_shape.fill._xPr.append(blipFill_copy)
         else:
             print(f"Unsupported fill type: {source_shape.fill.type}")
     except TypeError:
@@ -107,7 +135,7 @@ def set_color(source_shape, target_shape):
 def set_line(source_line, target_line): # _BasePicture, Shape, Connector
     target_line.dash_style = source_line.dash_style
     target_line.width = source_line.width
-    set_color(source_line, target_line)
+    set_fill(source_line, target_line)
 
 def set_shadow(source_shadow, target_shadow): # BaseShape
     if not source_shadow.inherit:

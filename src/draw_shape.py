@@ -16,7 +16,7 @@ from pptx.oxml import parse_xml
 from pptx.oxml.ns import nsdecls
 from pptx.oxml.ns import qn
 
-from .utils import set_color, set_line, set_base_shape
+from .utils import set_fill, set_line, set_base_shape
 
 class ShapeDrawer(ABC):
     def __init__(self, shape: Picture|BaseShape):
@@ -91,7 +91,7 @@ class TextBoxDrawer(ShapeDrawer):
             self.shape.height
         )
         set_base_shape(self.shape, shape)
-        set_color(self.shape, shape)
+        set_fill(self.shape, shape)
         set_line(self.shape.line, shape.line)
         p = shape.text_frame.paragraphs[0]
         p.alignment = self.shape.text_frame.paragraphs[0].alignment or PP_ALIGN.LEFT
@@ -122,7 +122,7 @@ class AutoShapeDrawer(ShapeDrawer):
             self.shape.height
         )
         set_base_shape(self.shape, shape)
-        set_color(self.shape, shape)
+        set_fill(self.shape, shape)
         set_line(self.shape.line, shape.line)
         shape.text = self.shape.text
 
