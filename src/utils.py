@@ -2,6 +2,7 @@ import subprocess, os, platform
 
 from collections import defaultdict
 from openpyxl import load_workbook
+from pptx.enum.dml import MSO_COLOR_TYPE, MSO_FILL
 from pptx.oxml.ns import qn
 
 class dotdict(dict):
@@ -80,19 +81,28 @@ def open_file_with_default_program(filename):
     
 def set_color(source_shape, target_shape):
     try:
-        color = source_shape.fill.fore_color.rgb
-        target_shape.fill.solid()
-        target_shape.fill.fore_color.rgb = color
+        if source_shape.fill.type is None:
+            pass
+        elif source_shape.fill.type == MSO_FILL.BACKGROUND:
+            target_shape.fill.background()
+        elif source_shape.fill.type == MSO_FILL.SOLID:
+            if source_shape.fill.fore_color.type == MSO_COLOR_TYPE.SCHEME:
+                color = source_shape.fill.fore_color.theme_color
+                target_shape.fill.solid()
+                target_shape.fill.fore_color.theme_color = color
+                target_shape.fill.fore_color.brightness = source_shape.fill.fore_color.brightness
+            elif source_shape.fill.fore_color.type == MSO_COLOR_TYPE.RGB:
+                color = source_shape.fill.fore_color.rgb
+                target_shape.fill.solid()
+                target_shape.fill.fore_color.rgb = color
+            elif source_shape.fill.fore_color.type is None:
+                target_shape.fill.background()
+            else:
+                print(f"Unsupported color type: {source_shape.fill.fore_color.type}")
+        else:
+            print(f"Unsupported fill type: {source_shape.fill.type}")
     except TypeError:
         pass
-    except AttributeError:
-        try:
-            color = source_shape.fill.fore_color.theme_color
-            target_shape.fill.solid()
-            target_shape.fill.fore_color.theme_color = color
-            target_shape.fill.fore_color.brightness = source_shape.fill.fore_color.brightness
-        except TypeError:
-            pass
 
 def set_line(source_line, target_line): # _BasePicture, Shape, Connector
     target_line.dash_style = source_line.dash_style

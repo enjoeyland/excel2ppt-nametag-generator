@@ -68,6 +68,7 @@ class ImageDrawer(ShapeDrawer):
             self.shape.height
         )
         set_base_shape(self.shape, pic)
+        set_line(self.shape.line, pic.line)
         pic.crop_left = self.shape.crop_left
         pic.crop_right = self.shape.crop_right
         pic.crop_top = self.shape.crop_top
